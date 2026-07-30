@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/common/page-header";
+import { AccountActions } from "@/features/auth/components/account-actions";
 import { ProfileForm } from "@/features/auth/components/profile-form";
 
 export const Route = createFileRoute("/_authenticated/_client/perfil")({
@@ -22,6 +23,7 @@ function ClientProfilePage() {
     <>
       <PageHeader title="Perfil" description="Tus datos de contacto." />
       <ProfileForm auth={auth} />
+      <AccountActions />
     </>
   );
 }

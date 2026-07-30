@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/common/page-header";
+import { AccountActions } from "@/features/auth/components/account-actions";
 import { ProfileForm } from "@/features/auth/components/profile-form";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/perfil")({
@@ -22,6 +23,7 @@ function AdminProfilePage() {
     <>
       <PageHeader title="Perfil" description="Los datos de tu cuenta de administrador." />
       <ProfileForm auth={auth} />
+      <AccountActions />
     </>
   );
 }
