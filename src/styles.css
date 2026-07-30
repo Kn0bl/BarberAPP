@@ -166,6 +166,14 @@
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
   * {
     border-color: var(--color-border);
   }
