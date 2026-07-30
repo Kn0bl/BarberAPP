@@ -18,6 +18,7 @@ import { Route as AuthenticatedClientMisTurnosRouteImport } from './routes/_auth
 import { Route as AuthenticatedClientPerfilRouteImport } from './routes/_authenticated/_client/perfil'
 import { Route as AuthenticatedClientReservarRouteImport } from './routes/_authenticated/_client/reservar'
 import { Route as AuthenticatedAdminAdminAgendaRouteImport } from './routes/_authenticated/_admin/admin/agenda'
+import { Route as AuthenticatedAdminAdminClientesRouteImport } from './routes/_authenticated/_admin/admin/clientes'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -67,6 +68,12 @@ const AuthenticatedAdminAdminAgendaRoute =
     path: '/admin/agenda',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAdminClientesRoute =
+  AuthenticatedAdminAdminClientesRouteImport.update({
+    id: '/admin/clientes',
+    path: '/admin/clientes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedClientPerfilRoute
   '/reservar': typeof AuthenticatedClientReservarRoute
   '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
+  '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +91,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedClientPerfilRoute
   '/reservar': typeof AuthenticatedClientReservarRoute
   '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
+  '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,14 +104,27 @@ export interface FileRoutesById {
   '/_authenticated/_client/perfil': typeof AuthenticatedClientPerfilRoute
   '/_authenticated/_client/reservar': typeof AuthenticatedClientReservarRoute
   '/_authenticated/_admin/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
+  '/_authenticated/_admin/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/inicio' | '/mis-turnos' | '/perfil' | '/reservar' | '/admin/agenda'
+    | '/'
+    | '/inicio'
+    | '/mis-turnos'
+    | '/perfil'
+    | '/reservar'
+    | '/admin/agenda'
+    | '/admin/clientes'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/inicio' | '/mis-turnos' | '/perfil' | '/reservar' | '/admin/agenda'
+    | '/'
+    | '/inicio'
+    | '/mis-turnos'
+    | '/perfil'
+    | '/reservar'
+    | '/admin/agenda'
+    | '/admin/clientes'
   id:
     | '__root__'
     | '/'
@@ -114,6 +136,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_client/perfil'
     | '/_authenticated/_client/reservar'
     | '/_authenticated/_admin/admin/agenda'
+    | '/_authenticated/_admin/admin/clientes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,16 +209,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminAgendaRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/_admin/admin/clientes': {
+      id: '/_authenticated/_admin/admin/clientes'
+      path: '/admin/clientes'
+      fullPath: '/admin/clientes'
+      preLoaderRoute: typeof AuthenticatedAdminAdminClientesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAdminAgendaRoute: typeof AuthenticatedAdminAdminAgendaRoute
+  AuthenticatedAdminAdminClientesRoute: typeof AuthenticatedAdminAdminClientesRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminAdminAgendaRoute: AuthenticatedAdminAdminAgendaRoute,
+    AuthenticatedAdminAdminClientesRoute: AuthenticatedAdminAdminClientesRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
