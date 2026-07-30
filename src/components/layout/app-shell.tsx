@@ -29,7 +29,7 @@ export function AppShell({ auth, items, homeHref, profileHref, children }: AppSh
         </Link>
         <SidebarNav items={items} />
         <div className="mt-auto px-1 text-xs text-muted-foreground">
-          {auth.role === "admin" ? "Panel de administración" : "Cuenta de cliente"}
+          {auth.role === "owner" ? "Panel de administración" : "Cuenta de cliente"}
         </div>
       </aside>
 

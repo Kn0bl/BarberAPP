@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
 import { LogOut, UserRound } from "lucide-react";
-import { toast } from "sonner";
-import { useState } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,7 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "@/features/auth/api";
+import { useSignOut } from "@/features/auth/use-sign-out";
+import { roleLabel } from "@/config/navigation";
 import type { AuthContext } from "@/features/auth/types";
 
 function initials(name: string | null | undefined, fallback: string) {
@@ -28,22 +26,7 @@ function initials(name: string | null | undefined, fallback: string) {
 
 export function UserMenu({ auth, profileHref }: { auth: AuthContext; profileHref: string }) {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [pending, setPending] = useState(false);
-
-  async function handleSignOut() {
-    setPending(true);
-    try {
-      await queryClient.cancelQueries();
-      queryClient.clear();
-      await signOut();
-      navigate({ to: "/auth", replace: true });
-    } catch {
-      toast.error("No pudimos cerrar la sesión. Intentá de nuevo.");
-    } finally {
-      setPending(false);
-    }
-  }
+  const { signOut, pending } = useSignOut();
 
   const displayName = auth.profile?.full_name || auth.user.email || "Cuenta";
 
@@ -62,7 +45,7 @@ export function UserMenu({ auth, profileHref }: { auth: AuthContext; profileHref
         <DropdownMenuLabel className="flex flex-col gap-0.5">
           <span className="truncate text-sm font-medium">{displayName}</span>
           <span className="truncate text-xs font-normal text-muted-foreground">
-            {auth.role === "admin" ? "Administrador" : "Cliente"}
+            {roleLabel(auth.role)}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -71,10 +54,13 @@ export function UserMenu({ auth, profileHref }: { auth: AuthContext; profileHref
           Mi perfil
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled={pending} onSelect={(event) => {
-          event.preventDefault();
-          void handleSignOut();
-        }}>
+        <DropdownMenuItem
+          disabled={pending}
+          onSelect={(event) => {
+            event.preventDefault();
+            void signOut();
+          }}
+        >
           <LogOut className="size-4" aria-hidden />
           Cerrar sesión
         </DropdownMenuItem>
