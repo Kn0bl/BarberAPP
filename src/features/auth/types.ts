@@ -1,7 +1,8 @@
 import type { Session, User } from "@supabase/supabase-js";
 import type { Tables } from "@/integrations/supabase/types";
 
-export type AppRole = "admin" | "client";
+/** Roles del sistema. Solo `owner` administra; se asigna manualmente. */
+export type AppRole = "owner" | "customer";
 
 export type Profile = Tables<"profiles">;
 export type Barbershop = Tables<"barbershops">;
