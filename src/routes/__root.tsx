@@ -8,9 +8,13 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { APP_DESCRIPTION, APP_NAME } from "@/config/app";
+import { ThemeProvider, themeInitScript } from "@/providers/theme-provider";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
