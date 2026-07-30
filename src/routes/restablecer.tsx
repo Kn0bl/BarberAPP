@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/layout/logo";
-import { LoadingState } from "@/components/common/loading-state";
+import { FullPageLoader } from "@/components/common/loading-state";
 import { fetchAuthContext } from "@/features/auth/api";
 import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
 import { homeForRole } from "@/config/navigation";
@@ -56,7 +56,7 @@ function ResetPasswordPage() {
           </p>
         </div>
 
-        {status === "checking" ? <LoadingState label="Validando el enlace…" /> : null}
+        {status === "checking" ? <FullPageLoader label="Validando el enlace…" /> : null}
 
         {status === "invalid" ? (
           <div className="space-y-3 text-center">
