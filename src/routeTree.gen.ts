@@ -19,6 +19,7 @@ import { Route as AuthenticatedClientPerfilRouteImport } from './routes/_authent
 import { Route as AuthenticatedClientReservarRouteImport } from './routes/_authenticated/_client/reservar'
 import { Route as AuthenticatedAdminAdminAgendaRouteImport } from './routes/_authenticated/_admin/admin/agenda'
 import { Route as AuthenticatedAdminAdminClientesRouteImport } from './routes/_authenticated/_admin/admin/clientes'
+import { Route as AuthenticatedAdminAdminServiciosRouteImport } from './routes/_authenticated/_admin/admin/servicios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -74,6 +75,12 @@ const AuthenticatedAdminAdminClientesRoute =
     path: '/admin/clientes',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAdminServiciosRoute =
+  AuthenticatedAdminAdminServiciosRouteImport.update({
+    id: '/admin/servicios',
+    path: '/admin/servicios',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/reservar': typeof AuthenticatedClientReservarRoute
   '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
   '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,6 +100,7 @@ export interface FileRoutesByTo {
   '/reservar': typeof AuthenticatedClientReservarRoute
   '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
   '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -105,6 +114,7 @@ export interface FileRoutesById {
   '/_authenticated/_client/reservar': typeof AuthenticatedClientReservarRoute
   '/_authenticated/_admin/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
   '/_authenticated/_admin/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/_authenticated/_admin/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/reservar'
     | '/admin/agenda'
     | '/admin/clientes'
+    | '/admin/servicios'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/reservar'
     | '/admin/agenda'
     | '/admin/clientes'
+    | '/admin/servicios'
   id:
     | '__root__'
     | '/'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_client/reservar'
     | '/_authenticated/_admin/admin/agenda'
     | '/_authenticated/_admin/admin/clientes'
+    | '/_authenticated/_admin/admin/servicios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,18 +229,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminClientesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/_admin/admin/servicios': {
+      id: '/_authenticated/_admin/admin/servicios'
+      path: '/admin/servicios'
+      fullPath: '/admin/servicios'
+      preLoaderRoute: typeof AuthenticatedAdminAdminServiciosRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAdminAgendaRoute: typeof AuthenticatedAdminAdminAgendaRoute
   AuthenticatedAdminAdminClientesRoute: typeof AuthenticatedAdminAdminClientesRoute
+  AuthenticatedAdminAdminServiciosRoute: typeof AuthenticatedAdminAdminServiciosRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminAdminAgendaRoute: AuthenticatedAdminAdminAgendaRoute,
     AuthenticatedAdminAdminClientesRoute: AuthenticatedAdminAdminClientesRoute,
+    AuthenticatedAdminAdminServiciosRoute:
+      AuthenticatedAdminAdminServiciosRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
