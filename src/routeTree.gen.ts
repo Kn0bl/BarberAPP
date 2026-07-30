@@ -10,33 +10,190 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
+import { Route as AuthenticatedClientRouteRouteImport } from './routes/_authenticated/_client/route'
+import { Route as AuthenticatedClientInicioRouteImport } from './routes/_authenticated/_client/inicio'
+import { Route as AuthenticatedClientMisTurnosRouteImport } from './routes/_authenticated/_client/mis-turnos'
+import { Route as AuthenticatedClientPerfilRouteImport } from './routes/_authenticated/_client/perfil'
+import { Route as AuthenticatedClientReservarRouteImport } from './routes/_authenticated/_client/reservar'
+import { Route as AuthenticatedAdminAdminAgendaRouteImport } from './routes/_authenticated/_admin/admin/agenda'
+import { Route as AuthenticatedAdminAdminClientesRouteImport } from './routes/_authenticated/_admin/admin/clientes'
+import { Route as AuthenticatedAdminAdminConfiguracionRouteImport } from './routes/_authenticated/_admin/admin/configuracion'
+import { Route as AuthenticatedAdminAdminPerfilRouteImport } from './routes/_authenticated/_admin/admin/perfil'
+import { Route as AuthenticatedAdminAdminServiciosRouteImport } from './routes/_authenticated/_admin/admin/servicios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedClientRouteRoute =
+  AuthenticatedClientRouteRouteImport.update({
+    id: '/_client',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientInicioRoute =
+  AuthenticatedClientInicioRouteImport.update({
+    id: '/inicio',
+    path: '/inicio',
+    getParentRoute: () => AuthenticatedClientRouteRoute,
+  } as any)
+const AuthenticatedClientMisTurnosRoute =
+  AuthenticatedClientMisTurnosRouteImport.update({
+    id: '/mis-turnos',
+    path: '/mis-turnos',
+    getParentRoute: () => AuthenticatedClientRouteRoute,
+  } as any)
+const AuthenticatedClientPerfilRoute =
+  AuthenticatedClientPerfilRouteImport.update({
+    id: '/perfil',
+    path: '/perfil',
+    getParentRoute: () => AuthenticatedClientRouteRoute,
+  } as any)
+const AuthenticatedClientReservarRoute =
+  AuthenticatedClientReservarRouteImport.update({
+    id: '/reservar',
+    path: '/reservar',
+    getParentRoute: () => AuthenticatedClientRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminAgendaRoute =
+  AuthenticatedAdminAdminAgendaRouteImport.update({
+    id: '/admin/agenda',
+    path: '/admin/agenda',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminClientesRoute =
+  AuthenticatedAdminAdminClientesRouteImport.update({
+    id: '/admin/clientes',
+    path: '/admin/clientes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminConfiguracionRoute =
+  AuthenticatedAdminAdminConfiguracionRouteImport.update({
+    id: '/admin/configuracion',
+    path: '/admin/configuracion',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminPerfilRoute =
+  AuthenticatedAdminAdminPerfilRouteImport.update({
+    id: '/admin/perfil',
+    path: '/admin/perfil',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminServiciosRoute =
+  AuthenticatedAdminAdminServiciosRouteImport.update({
+    id: '/admin/servicios',
+    path: '/admin/servicios',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/inicio': typeof AuthenticatedClientInicioRoute
+  '/mis-turnos': typeof AuthenticatedClientMisTurnosRoute
+  '/perfil': typeof AuthenticatedClientPerfilRoute
+  '/reservar': typeof AuthenticatedClientReservarRoute
+  '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
+  '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/admin/configuracion': typeof AuthenticatedAdminAdminConfiguracionRoute
+  '/admin/perfil': typeof AuthenticatedAdminAdminPerfilRoute
+  '/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/inicio': typeof AuthenticatedClientInicioRoute
+  '/mis-turnos': typeof AuthenticatedClientMisTurnosRoute
+  '/perfil': typeof AuthenticatedClientPerfilRoute
+  '/reservar': typeof AuthenticatedClientReservarRoute
+  '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
+  '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/admin/configuracion': typeof AuthenticatedAdminAdminConfiguracionRoute
+  '/admin/perfil': typeof AuthenticatedAdminAdminPerfilRoute
+  '/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/_client': typeof AuthenticatedClientRouteRouteWithChildren
+  '/_authenticated/_client/inicio': typeof AuthenticatedClientInicioRoute
+  '/_authenticated/_client/mis-turnos': typeof AuthenticatedClientMisTurnosRoute
+  '/_authenticated/_client/perfil': typeof AuthenticatedClientPerfilRoute
+  '/_authenticated/_client/reservar': typeof AuthenticatedClientReservarRoute
+  '/_authenticated/_admin/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
+  '/_authenticated/_admin/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/_authenticated/_admin/admin/configuracion': typeof AuthenticatedAdminAdminConfiguracionRoute
+  '/_authenticated/_admin/admin/perfil': typeof AuthenticatedAdminAdminPerfilRoute
+  '/_authenticated/_admin/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/inicio'
+    | '/mis-turnos'
+    | '/perfil'
+    | '/reservar'
+    | '/admin/agenda'
+    | '/admin/clientes'
+    | '/admin/configuracion'
+    | '/admin/perfil'
+    | '/admin/servicios'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/inicio'
+    | '/mis-turnos'
+    | '/perfil'
+    | '/reservar'
+    | '/admin/agenda'
+    | '/admin/clientes'
+    | '/admin/configuracion'
+    | '/admin/perfil'
+    | '/admin/servicios'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/_admin'
+    | '/_authenticated/_client'
+    | '/_authenticated/_client/inicio'
+    | '/_authenticated/_client/mis-turnos'
+    | '/_authenticated/_client/perfil'
+    | '/_authenticated/_client/reservar'
+    | '/_authenticated/_admin/admin/agenda'
+    | '/_authenticated/_admin/admin/clientes'
+    | '/_authenticated/_admin/admin/configuracion'
+    | '/_authenticated/_admin/admin/perfil'
+    | '/_authenticated/_admin/admin/servicios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +205,162 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/_admin': {
+      id: '/_authenticated/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_client': {
+      id: '/_authenticated/_client'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedClientRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_client/inicio': {
+      id: '/_authenticated/_client/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof AuthenticatedClientInicioRouteImport
+      parentRoute: typeof AuthenticatedClientRouteRoute
+    }
+    '/_authenticated/_client/mis-turnos': {
+      id: '/_authenticated/_client/mis-turnos'
+      path: '/mis-turnos'
+      fullPath: '/mis-turnos'
+      preLoaderRoute: typeof AuthenticatedClientMisTurnosRouteImport
+      parentRoute: typeof AuthenticatedClientRouteRoute
+    }
+    '/_authenticated/_client/perfil': {
+      id: '/_authenticated/_client/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedClientPerfilRouteImport
+      parentRoute: typeof AuthenticatedClientRouteRoute
+    }
+    '/_authenticated/_client/reservar': {
+      id: '/_authenticated/_client/reservar'
+      path: '/reservar'
+      fullPath: '/reservar'
+      preLoaderRoute: typeof AuthenticatedClientReservarRouteImport
+      parentRoute: typeof AuthenticatedClientRouteRoute
+    }
+    '/_authenticated/_admin/admin/agenda': {
+      id: '/_authenticated/_admin/admin/agenda'
+      path: '/admin/agenda'
+      fullPath: '/admin/agenda'
+      preLoaderRoute: typeof AuthenticatedAdminAdminAgendaRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/clientes': {
+      id: '/_authenticated/_admin/admin/clientes'
+      path: '/admin/clientes'
+      fullPath: '/admin/clientes'
+      preLoaderRoute: typeof AuthenticatedAdminAdminClientesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/configuracion': {
+      id: '/_authenticated/_admin/admin/configuracion'
+      path: '/admin/configuracion'
+      fullPath: '/admin/configuracion'
+      preLoaderRoute: typeof AuthenticatedAdminAdminConfiguracionRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/perfil': {
+      id: '/_authenticated/_admin/admin/perfil'
+      path: '/admin/perfil'
+      fullPath: '/admin/perfil'
+      preLoaderRoute: typeof AuthenticatedAdminAdminPerfilRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/servicios': {
+      id: '/_authenticated/_admin/admin/servicios'
+      path: '/admin/servicios'
+      fullPath: '/admin/servicios'
+      preLoaderRoute: typeof AuthenticatedAdminAdminServiciosRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAdminAgendaRoute: typeof AuthenticatedAdminAdminAgendaRoute
+  AuthenticatedAdminAdminClientesRoute: typeof AuthenticatedAdminAdminClientesRoute
+  AuthenticatedAdminAdminConfiguracionRoute: typeof AuthenticatedAdminAdminConfiguracionRoute
+  AuthenticatedAdminAdminPerfilRoute: typeof AuthenticatedAdminAdminPerfilRoute
+  AuthenticatedAdminAdminServiciosRoute: typeof AuthenticatedAdminAdminServiciosRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminAdminAgendaRoute: AuthenticatedAdminAdminAgendaRoute,
+    AuthenticatedAdminAdminClientesRoute: AuthenticatedAdminAdminClientesRoute,
+    AuthenticatedAdminAdminConfiguracionRoute:
+      AuthenticatedAdminAdminConfiguracionRoute,
+    AuthenticatedAdminAdminPerfilRoute: AuthenticatedAdminAdminPerfilRoute,
+    AuthenticatedAdminAdminServiciosRoute:
+      AuthenticatedAdminAdminServiciosRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedClientRouteRouteChildren {
+  AuthenticatedClientInicioRoute: typeof AuthenticatedClientInicioRoute
+  AuthenticatedClientMisTurnosRoute: typeof AuthenticatedClientMisTurnosRoute
+  AuthenticatedClientPerfilRoute: typeof AuthenticatedClientPerfilRoute
+  AuthenticatedClientReservarRoute: typeof AuthenticatedClientReservarRoute
+}
+
+const AuthenticatedClientRouteRouteChildren: AuthenticatedClientRouteRouteChildren =
+  {
+    AuthenticatedClientInicioRoute: AuthenticatedClientInicioRoute,
+    AuthenticatedClientMisTurnosRoute: AuthenticatedClientMisTurnosRoute,
+    AuthenticatedClientPerfilRoute: AuthenticatedClientPerfilRoute,
+    AuthenticatedClientReservarRoute: AuthenticatedClientReservarRoute,
+  }
+
+const AuthenticatedClientRouteRouteWithChildren =
+  AuthenticatedClientRouteRoute._addFileChildren(
+    AuthenticatedClientRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedClientRouteRoute: typeof AuthenticatedClientRouteRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedClientRouteRoute: AuthenticatedClientRouteRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
