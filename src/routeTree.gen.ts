@@ -19,6 +19,7 @@ import { Route as AuthenticatedClientPerfilRouteImport } from './routes/_authent
 import { Route as AuthenticatedClientReservarRouteImport } from './routes/_authenticated/_client/reservar'
 import { Route as AuthenticatedAdminAdminAgendaRouteImport } from './routes/_authenticated/_admin/admin/agenda'
 import { Route as AuthenticatedAdminAdminClientesRouteImport } from './routes/_authenticated/_admin/admin/clientes'
+import { Route as AuthenticatedAdminAdminConfiguracionRouteImport } from './routes/_authenticated/_admin/admin/configuracion'
 import { Route as AuthenticatedAdminAdminServiciosRouteImport } from './routes/_authenticated/_admin/admin/servicios'
 
 const IndexRoute = IndexRouteImport.update({
@@ -75,6 +76,12 @@ const AuthenticatedAdminAdminClientesRoute =
     path: '/admin/clientes',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAdminConfiguracionRoute =
+  AuthenticatedAdminAdminConfiguracionRouteImport.update({
+    id: '/admin/configuracion',
+    path: '/admin/configuracion',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminAdminServiciosRoute =
   AuthenticatedAdminAdminServiciosRouteImport.update({
     id: '/admin/servicios',
@@ -90,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/reservar': typeof AuthenticatedClientReservarRoute
   '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
   '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/admin/configuracion': typeof AuthenticatedAdminAdminConfiguracionRoute
   '/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRoutesByTo {
@@ -100,6 +108,7 @@ export interface FileRoutesByTo {
   '/reservar': typeof AuthenticatedClientReservarRoute
   '/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
   '/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/admin/configuracion': typeof AuthenticatedAdminAdminConfiguracionRoute
   '/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRoutesById {
@@ -114,6 +123,7 @@ export interface FileRoutesById {
   '/_authenticated/_client/reservar': typeof AuthenticatedClientReservarRoute
   '/_authenticated/_admin/admin/agenda': typeof AuthenticatedAdminAdminAgendaRoute
   '/_authenticated/_admin/admin/clientes': typeof AuthenticatedAdminAdminClientesRoute
+  '/_authenticated/_admin/admin/configuracion': typeof AuthenticatedAdminAdminConfiguracionRoute
   '/_authenticated/_admin/admin/servicios': typeof AuthenticatedAdminAdminServiciosRoute
 }
 export interface FileRouteTypes {
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/reservar'
     | '/admin/agenda'
     | '/admin/clientes'
+    | '/admin/configuracion'
     | '/admin/servicios'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/reservar'
     | '/admin/agenda'
     | '/admin/clientes'
+    | '/admin/configuracion'
     | '/admin/servicios'
   id:
     | '__root__'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_client/reservar'
     | '/_authenticated/_admin/admin/agenda'
     | '/_authenticated/_admin/admin/clientes'
+    | '/_authenticated/_admin/admin/configuracion'
     | '/_authenticated/_admin/admin/servicios'
   fileRoutesById: FileRoutesById
 }
@@ -229,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminClientesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/_admin/admin/configuracion': {
+      id: '/_authenticated/_admin/admin/configuracion'
+      path: '/admin/configuracion'
+      fullPath: '/admin/configuracion'
+      preLoaderRoute: typeof AuthenticatedAdminAdminConfiguracionRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/_admin/admin/servicios': {
       id: '/_authenticated/_admin/admin/servicios'
       path: '/admin/servicios'
@@ -242,6 +262,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAdminAgendaRoute: typeof AuthenticatedAdminAdminAgendaRoute
   AuthenticatedAdminAdminClientesRoute: typeof AuthenticatedAdminAdminClientesRoute
+  AuthenticatedAdminAdminConfiguracionRoute: typeof AuthenticatedAdminAdminConfiguracionRoute
   AuthenticatedAdminAdminServiciosRoute: typeof AuthenticatedAdminAdminServiciosRoute
 }
 
@@ -249,6 +270,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminAdminAgendaRoute: AuthenticatedAdminAdminAgendaRoute,
     AuthenticatedAdminAdminClientesRoute: AuthenticatedAdminAdminClientesRoute,
+    AuthenticatedAdminAdminConfiguracionRoute:
+      AuthenticatedAdminAdminConfiguracionRoute,
     AuthenticatedAdminAdminServiciosRoute:
       AuthenticatedAdminAdminServiciosRoute,
   }
