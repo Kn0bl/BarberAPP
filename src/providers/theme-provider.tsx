@@ -30,7 +30,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeState(next);
     localStorage.setItem(STORAGE_KEY, next);
     document.documentElement.classList.toggle("dark", next === "dark");
-    document.documentElement.style.colorScheme = next;
+    }, []);
   }, []);
 
   const value = useMemo<ThemeContextValue>(
