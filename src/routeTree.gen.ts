@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as RecuperarContrasenaRouteImport } from './routes/recuperar-contrasena'
+import { Route as RestablecerRouteImport } from './routes/restablecer'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedClientRouteRouteImport } from './routes/_authenticated/_client/route'
 import { Route as AuthenticatedClientInicioRouteImport } from './routes/_authenticated/_client/inicio'
@@ -36,6 +38,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarContrasenaRoute = RecuperarContrasenaRouteImport.update({
+  id: '/recuperar-contrasena',
+  path: '/recuperar-contrasena',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestablecerRoute = RestablecerRouteImport.update({
+  id: '/restablecer',
+  path: '/restablecer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
@@ -105,6 +117,8 @@ const AuthenticatedAdminAdminServiciosRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/recuperar-contrasena': typeof RecuperarContrasenaRoute
+  '/restablecer': typeof RestablecerRoute
   '/inicio': typeof AuthenticatedClientInicioRoute
   '/mis-turnos': typeof AuthenticatedClientMisTurnosRoute
   '/perfil': typeof AuthenticatedClientPerfilRoute
@@ -118,6 +132,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/recuperar-contrasena': typeof RecuperarContrasenaRoute
+  '/restablecer': typeof RestablecerRoute
   '/inicio': typeof AuthenticatedClientInicioRoute
   '/mis-turnos': typeof AuthenticatedClientMisTurnosRoute
   '/perfil': typeof AuthenticatedClientPerfilRoute
@@ -133,6 +149,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/recuperar-contrasena': typeof RecuperarContrasenaRoute
+  '/restablecer': typeof RestablecerRoute
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/_client': typeof AuthenticatedClientRouteRouteWithChildren
   '/_authenticated/_client/inicio': typeof AuthenticatedClientInicioRoute
@@ -150,6 +168,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/recuperar-contrasena'
+    | '/restablecer'
     | '/inicio'
     | '/mis-turnos'
     | '/perfil'
@@ -163,6 +183,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/recuperar-contrasena'
+    | '/restablecer'
     | '/inicio'
     | '/mis-turnos'
     | '/perfil'
@@ -177,6 +199,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/recuperar-contrasena'
+    | '/restablecer'
     | '/_authenticated/_admin'
     | '/_authenticated/_client'
     | '/_authenticated/_client/inicio'
@@ -194,6 +218,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  RecuperarContrasenaRoute: typeof RecuperarContrasenaRoute
+  RestablecerRoute: typeof RestablecerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -217,6 +243,20 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar-contrasena': {
+      id: '/recuperar-contrasena'
+      path: '/recuperar-contrasena'
+      fullPath: '/recuperar-contrasena'
+      preLoaderRoute: typeof RecuperarContrasenaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restablecer': {
+      id: '/restablecer'
+      path: '/restablecer'
+      fullPath: '/restablecer'
+      preLoaderRoute: typeof RestablecerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_admin': {
@@ -360,6 +400,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  RecuperarContrasenaRoute: RecuperarContrasenaRoute,
+  RestablecerRoute: RestablecerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -32,6 +32,22 @@ export const profileSchema = z.object({
   phone: z.string().min(6, "Ingresá tu número de teléfono"),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: emailField,
+});
+
+export const newPasswordSchema = z
+  .object({
+    password: passwordField,
+    confirmPassword: z.string().min(1, "Repetí la contraseña"),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Las contraseñas no coinciden",
+  });
+
 export type LoginValues = z.infer<typeof loginSchema>;
 export type RegisterValues = z.infer<typeof registerSchema>;
 export type ProfileValues = z.infer<typeof profileSchema>;
+export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
+export type NewPasswordValues = z.infer<typeof newPasswordSchema>;

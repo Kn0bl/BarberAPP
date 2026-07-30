@@ -20,14 +20,14 @@ export interface NavItem {
   primary?: boolean;
 }
 
-export const CLIENT_NAV: NavItem[] = [
+export const CUSTOMER_NAV: NavItem[] = [
   { to: "/inicio", label: "Inicio", icon: Home, primary: true },
   { to: "/reservar", label: "Reservar", icon: CalendarPlus, primary: true },
   { to: "/mis-turnos", label: "Mis turnos", icon: CalendarDays, primary: true },
   { to: "/perfil", label: "Perfil", icon: UserRound, primary: true },
 ];
 
-export const ADMIN_NAV: NavItem[] = [
+export const OWNER_NAV: NavItem[] = [
   { to: "/admin/agenda", label: "Agenda", icon: CalendarDays, primary: true },
   { to: "/admin/clientes", label: "Clientes", icon: Users, primary: true },
   { to: "/admin/servicios", label: "Servicios", icon: Scissors, primary: true },
@@ -36,9 +36,13 @@ export const ADMIN_NAV: NavItem[] = [
 ];
 
 export function navForRole(role: AppRole): NavItem[] {
-  return role === "admin" ? ADMIN_NAV : CLIENT_NAV;
+  return role === "owner" ? OWNER_NAV : CUSTOMER_NAV;
 }
 
 export function homeForRole(role: AppRole): string {
-  return role === "admin" ? "/admin/agenda" : "/inicio";
+  return role === "owner" ? "/admin/agenda" : "/inicio";
+}
+
+export function roleLabel(role: AppRole): string {
+  return role === "owner" ? "Administrador" : "Cliente";
 }

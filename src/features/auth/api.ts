@@ -18,7 +18,8 @@ export async function fetchAuthContext(): Promise<AuthContext | null> {
 
   const profile = (profileResult.data as Profile | null) ?? null;
   const roles = (roleResult.data ?? []).map((row) => row.role as AppRole);
-  const role: AppRole = roles.includes("admin") ? "admin" : "client";
+  // El rol `owner` nunca se autoasigna: se crea manualmente en la base.
+  const role: AppRole = roles.includes("owner") ? "owner" : "customer";
 
   return {
     user,
@@ -40,7 +41,7 @@ export async function signUpClient({ fullName, phone, email, password }: SignUpI
     email,
     password,
     options: {
-      emailRedirectTo: `${window.location.origin}/auth/callback`,
+      emailRedirectTo: `${window.location.origin}/auth`,
       data: { full_name: fullName, phone },
     },
   });
@@ -54,6 +55,20 @@ export async function signInWithPassword(email: string, password: string) {
 
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+/** Envía el email con el enlace para restablecer la contraseña. */
+export async function requestPasswordReset(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/restablecer`,
+  });
+  if (error) throw error;
+}
+
+/** Define una contraseña nueva para la sesión de recuperación activa. */
+export async function updatePassword(password: string) {
+  const { error } = await supabase.auth.updateUser({ password });
   if (error) throw error;
 }
 
