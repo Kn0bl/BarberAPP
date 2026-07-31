@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarDays } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { EmptyState } from "@/components/common/empty-state";
 import { PageHeader } from "@/components/common/page-header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AgendaBoard } from "@/features/agenda/components/agenda-board";
+import { addDays, formatDayLabel, toDateKey } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/agenda")({
   head: () => ({
@@ -17,36 +19,54 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/agenda")({
   component: AdminAgendaPage,
 });
 
-const SUMMARY = [
-  { label: "Turnos hoy", value: "0" },
-  { label: "Confirmados", value: "0" },
-  { label: "Cancelados", value: "0" },
-];
-
 function AdminAgendaPage() {
+  const { auth } = Route.useRouteContext();
+  const [date, setDate] = useState(() => new Date());
+
+  const dayKey = useMemo(() => toDateKey(date), [date]);
+  const isToday = dayKey === toDateKey(new Date());
+
   return (
     <>
-      <PageHeader title="Agenda" description="Los turnos del día de tu barbería." />
+      <PageHeader
+        title="Agenda"
+        description="Tocá un horario para crear, bloquear o gestionar un turno."
+      />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {SUMMARY.map((item) => (
-          <Card key={item.label}>
-            <CardHeader className="pb-2">
-              <CardDescription>{item.label}</CardDescription>
-              <CardTitle className="text-2xl">{item.value}</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 text-xs text-muted-foreground">
-              Actualizado en tiempo real cuando se habiliten las reservas.
-            </CardContent>
-          </Card>
-        ))}
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Día anterior"
+          onClick={() => setDate((current) => addDays(current, -1))}
+        >
+          <ChevronLeft className="size-4" aria-hidden />
+        </Button>
+        <div className="min-w-0 text-center">
+          <p className="truncate text-sm font-medium capitalize">{formatDayLabel(date)}</p>
+          {!isToday ? (
+            <button
+              type="button"
+              className="text-xs text-primary"
+              onClick={() => setDate(new Date())}
+            >
+              Volver a hoy
+            </button>
+          ) : (
+            <p className="text-xs text-muted-foreground">Hoy</p>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Día siguiente"
+          onClick={() => setDate((current) => addDays(current, 1))}
+        >
+          <ChevronRight className="size-4" aria-hidden />
+        </Button>
       </div>
 
-      <EmptyState
-        icon={CalendarDays}
-        title="Sin turnos para hoy"
-        description="Cuando los clientes reserven, vas a ver la grilla horaria completa acá."
-      />
+      <AgendaBoard barbershopId={auth.barbershopId} dayKey={dayKey} date={date} />
     </>
   );
 }

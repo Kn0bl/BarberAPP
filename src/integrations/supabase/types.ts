@@ -17,11 +17,14 @@ export type Database = {
       appointments: {
         Row: {
           barbershop_id: string
-          client_id: string
+          client_id: string | null
+          client_name: string | null
+          client_phone: string | null
           created_at: string
           ends_at: string
           id: string
           notes: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"]
           price_cents: number
           service_id: string | null
           starts_at: string
@@ -30,11 +33,14 @@ export type Database = {
         }
         Insert: {
           barbershop_id: string
-          client_id: string
+          client_id?: string | null
+          client_name?: string | null
+          client_phone?: string | null
           created_at?: string
           ends_at: string
           id?: string
           notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
           price_cents?: number
           service_id?: string | null
           starts_at: string
@@ -43,11 +49,14 @@ export type Database = {
         }
         Update: {
           barbershop_id?: string
-          client_id?: string
+          client_id?: string | null
+          client_name?: string | null
+          client_phone?: string | null
           created_at?: string
           ends_at?: string
           id?: string
           notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
           price_cents?: number
           service_id?: string | null
           starts_at?: string
@@ -380,6 +389,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "no_show"
+      payment_method: "cash" | "transfer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -515,6 +525,7 @@ export const Constants = {
         "cancelled",
         "no_show",
       ],
+      payment_method: ["cash", "transfer"],
     },
   },
 } as const

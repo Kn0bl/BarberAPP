@@ -17,7 +17,7 @@ export function BottomNav({ items }: { items: NavItem[] }) {
       aria-label="Navegación principal"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
-      <ul className="grid grid-cols-4">
+      <ul className="grid" style={{ gridTemplateColumns: `repeat(${visible.length}, minmax(0, 1fr))` }}>
         {visible.map((item) => {
           const active = isActive(pathname, item.to);
           return (

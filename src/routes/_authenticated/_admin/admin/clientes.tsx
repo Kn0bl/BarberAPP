@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Users } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, Users } from "lucide-react";
 
 import { EmptyState } from "@/components/common/empty-state";
+import { ErrorState } from "@/components/common/error-state";
+import { LoadingState } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";
+import { Input } from "@/components/ui/input";
+import { useClients } from "@/features/clients/api";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/clientes")({
   head: () => ({
@@ -17,14 +22,69 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/clientes")({
 });
 
 function AdminClientsPage() {
+  const { auth } = Route.useRouteContext();
+  const [term, setTerm] = useState("");
+  const clients = useClients(auth.barbershopId);
+
+  const filtered = useMemo(() => {
+    const query = term.trim().toLowerCase();
+    const list = clients.data ?? [];
+    if (!query) return list;
+    return list.filter(
+      (client) =>
+        client.fullName.toLowerCase().includes(query) ||
+        (client.phone ?? "").toLowerCase().includes(query),
+    );
+  }, [clients.data, term]);
+
   return (
     <>
       <PageHeader title="Clientes" description="Todas las personas registradas en tu barbería." />
-      <EmptyState
-        icon={Users}
-        title="Todavía no hay clientes"
-        description="Cada persona que se registre en la app va a aparecer en esta lista."
-      />
+
+      <div className="relative">
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
+        <Input
+          className="pl-9"
+          placeholder="Buscar por nombre o teléfono"
+          value={term}
+          onChange={(event) => setTerm(event.target.value)}
+          aria-label="Buscar clientes"
+        />
+      </div>
+
+      {clients.isLoading ? <LoadingState rows={4} /> : null}
+      {clients.isError ? <ErrorState onRetry={() => clients.refetch()} /> : null}
+
+      {clients.isSuccess && filtered.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title={term ? "Sin resultados" : "Todavía no hay clientes"}
+          description={
+            term
+              ? "Probá con otro nombre o teléfono."
+              : "Cada persona que se registre en la app va a aparecer en esta lista."
+          }
+        />
+      ) : null}
+
+      {filtered.length > 0 ? (
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+          {filtered.map((client) => (
+            <li key={client.id} className="flex items-center gap-4 px-4 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{client.fullName}</p>
+                <p className="truncate text-xs text-muted-foreground">{client.phone ?? "Sin teléfono"}</p>
+              </div>
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {client.visits} {client.visits === 1 ? "visita" : "visitas"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </>
   );
 }
