@@ -3,6 +3,7 @@ import {
   CalendarDays,
   CalendarPlus,
   Home,
+  LayoutDashboard,
   Scissors,
   Settings,
   UserRound,
@@ -31,9 +32,11 @@ export const OWNER_NAV: NavItem[] = [
   { to: "/admin/agenda", label: "Agenda", icon: CalendarDays, primary: true },
   { to: "/admin/clientes", label: "Clientes", icon: Users, primary: true },
   { to: "/admin/servicios", label: "Servicios", icon: Scissors, primary: true },
-  { to: "/admin/configuracion", label: "Configuración", icon: Settings, primary: true },
+  { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, primary: true },
+  { to: "/admin/configuracion", label: "Configuración", icon: Settings },
   { to: "/admin/perfil", label: "Perfil", icon: UserRound },
 ];
+
 
 export function navForRole(role: AppRole): NavItem[] {
   return role === "owner" ? OWNER_NAV : CUSTOMER_NAV;
