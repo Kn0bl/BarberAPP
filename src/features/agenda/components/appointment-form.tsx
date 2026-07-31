@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -48,17 +47,11 @@ export function AppointmentForm({
     defaultValues: {
       clientName: "",
       clientPhone: "",
-      serviceId: "",
+      serviceId: services[0]?.id ?? "",
       paymentMethod: "cash",
       ...defaultValues,
     },
   });
-
-  useEffect(() => {
-    if (!form.getValues("serviceId") && services[0]) {
-      form.setValue("serviceId", services[0].id);
-    }
-  }, [services, form]);
 
   return (
     <Form {...form}>

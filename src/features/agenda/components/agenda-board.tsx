@@ -183,6 +183,9 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
                 <DrawerTitle>Nuevo turno · {sheet.slot.time}</DrawerTitle>
                 <DrawerDescription>Cargá los datos del cliente.</DrawerDescription>
               </DrawerHeader>
+              {services.isLoading ? (
+                <LoadingState rows={2} />
+              ) : (
               <AppointmentForm
                 services={services.data ?? []}
                 submitLabel="Guardar turno"
@@ -205,6 +208,7 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
                   }
                 }}
               />
+              )}
             </>
           ) : null}
 
