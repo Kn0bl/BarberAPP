@@ -33,7 +33,7 @@ export const OWNER_NAV: NavItem[] = [
   { to: "/admin/clientes", label: "Clientes", icon: Users, primary: true },
   { to: "/admin/servicios", label: "Servicios", icon: Scissors, primary: true },
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, primary: true },
-  { to: "/admin/configuracion", label: "Configuración", icon: Settings },
+  { to: "/admin/configuracion", label: "Configuración", icon: Settings, primary: true },
   { to: "/admin/perfil", label: "Perfil", icon: UserRound },
 ];
 
