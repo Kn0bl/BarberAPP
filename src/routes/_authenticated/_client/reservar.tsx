@@ -1,8 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CalendarPlus } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { CalendarPlus, Check, Scissors } from "lucide-react";
+import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
+import { ErrorState } from "@/components/common/error-state";
+import { LoadingState } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";
+import { Button } from "@/components/ui/button";
+import { useAgendaDay } from "@/features/agenda/api";
+import { getAvailableSlots, isOpenDay } from "@/features/agenda/slots";
+import { useCreateClientAppointment } from "@/features/appointments/api";
+import { useServices, type Service } from "@/features/services/api";
+import { addDays, formatCurrency, formatDayLabel, toDateKey } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/_client/reservar")({
   head: () => ({
@@ -16,18 +27,213 @@ export const Route = createFileRoute("/_authenticated/_client/reservar")({
   component: BookingPage,
 });
 
+const DAYS_AHEAD = 14;
+
+function useUpcomingDays() {
+  return useMemo(() => {
+    const today = new Date();
+    const days: Date[] = [];
+    for (let index = 0; index < DAYS_AHEAD; index += 1) {
+      const date = addDays(today, index);
+      date.setHours(0, 0, 0, 0);
+      if (isOpenDay(date)) days.push(date);
+    }
+    return days;
+  }, []);
+}
+
+function StepTitle({ step, title }: { step: number; title: string }) {
+  return (
+    <h2 className="text-sm font-medium">
+      <span className="mr-2 text-muted-foreground">{step}.</span>
+      {title}
+    </h2>
+  );
+}
+
 function BookingPage() {
+  const { auth } = Route.useRouteContext();
+  const navigate = useNavigate();
+
+  const days = useUpcomingDays();
+  const [service, setService] = useState<Service | null>(null);
+  const [date, setDate] = useState<Date | null>(days[0] ?? null);
+  const [slotTime, setSlotTime] = useState<string | null>(null);
+
+  const dayKey = date ? toDateKey(date) : "none";
+  const services = useServices(auth.barbershopId);
+  const agendaDay = useAgendaDay(auth.barbershopId, dayKey, date ?? new Date());
+  const createAppointment = useCreateClientAppointment(auth.barbershopId, dayKey);
+
+  const slots = useMemo(() => {
+    if (!date || !service || !agendaDay.data) return [];
+    return getAvailableSlots(date, service.duration_minutes, agendaDay.data);
+  }, [date, service, agendaDay.data]);
+
+  const selectedSlot = slots.find((slot) => slot.time === slotTime) ?? null;
+  const canConfirm = Boolean(service && date && selectedSlot) && !createAppointment.isPending;
+
+  async function handleConfirm() {
+    if (!service || !selectedSlot) return;
+    try {
+      await createAppointment.mutateAsync({
+        clientId: auth.user.id,
+        clientName: auth.profile?.full_name || auth.user.email || "Cliente",
+        clientPhone: auth.profile?.phone ?? null,
+        serviceId: service.id,
+        priceCents: service.price_cents,
+        durationMinutes: service.duration_minutes,
+        startsAt: selectedSlot.start,
+      });
+      toast.success("Turno reservado");
+      navigate({ to: "/mis-turnos" });
+    } catch (error) {
+      setSlotTime(null);
+      agendaDay.refetch();
+      toast.error(error instanceof Error ? error.message : "No pudimos reservar el turno");
+    }
+  }
+
   return (
     <>
       <PageHeader
         title="Reservar turno"
         description="Seleccioná un servicio y un horario disponible."
       />
-      <EmptyState
-        icon={CalendarPlus}
-        title="Reservas en preparación"
-        description="La estructura ya está lista: servicios, disponibilidad y bloqueos. El flujo de reserva se habilita en el próximo paso."
-      />
+
+      <section className="space-y-3">
+        <StepTitle step={1} title="Elegí el servicio" />
+
+        {services.isLoading ? <LoadingState rows={3} /> : null}
+        {services.isError ? <ErrorState onRetry={() => services.refetch()} /> : null}
+
+        {services.isSuccess && services.data.length === 0 ? (
+          <EmptyState
+            icon={Scissors}
+            title="Sin servicios disponibles"
+            description="La barbería todavía no cargó sus servicios. Volvé a intentarlo más tarde."
+          />
+        ) : null}
+
+        {services.isSuccess && services.data.length > 0 ? (
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {services.data.map((item) => {
+              const selected = service?.id === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => {
+                      setService(item);
+                      setSlotTime(null);
+                    }}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors",
+                      selected ? "border-primary ring-1 ring-primary" : "hover:bg-accent",
+                    )}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatCurrency(item.price_cents)} · {item.duration_minutes} min
+                      </p>
+                    </div>
+                    {selected ? <Check className="size-4 text-primary" aria-hidden /> : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+      </section>
+
+      <section className="space-y-3">
+        <StepTitle step={2} title="Elegí el día" />
+        <div className="-mx-4 overflow-x-auto px-4">
+          <div className="flex gap-2 pb-1">
+            {days.map((day) => {
+              const key = toDateKey(day);
+              const selected = dayKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => {
+                    setDate(day);
+                    setSlotTime(null);
+                  }}
+                  className={cn(
+                    "shrink-0 rounded-xl border border-border px-4 py-2 text-xs capitalize transition-colors",
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "bg-card hover:bg-accent",
+                  )}
+                >
+                  {formatDayLabel(day)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <StepTitle step={3} title="Elegí el horario" />
+
+        {!service ? (
+          <p className="text-sm text-muted-foreground">
+            Primero elegí un servicio para ver los horarios disponibles.
+          </p>
+        ) : null}
+
+        {service && agendaDay.isLoading ? <LoadingState rows={3} /> : null}
+        {service && agendaDay.isError ? <ErrorState onRetry={() => agendaDay.refetch()} /> : null}
+
+        {service && agendaDay.isSuccess && slots.length === 0 ? (
+          <EmptyState
+            icon={CalendarPlus}
+            title="Sin horarios disponibles"
+            description="No quedan horarios libres para ese día. Probá con otra fecha."
+          />
+        ) : null}
+
+        {service && slots.length > 0 ? (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {slots.map((slot) => {
+              const selected = slotTime === slot.time;
+              return (
+                <button
+                  key={slot.time}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => setSlotTime(slot.time)}
+                  className={cn(
+                    "rounded-lg border border-border py-2 text-sm transition-colors",
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "bg-card hover:bg-accent",
+                  )}
+                >
+                  {slot.time}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </section>
+
+      <div className="sticky bottom-4 pt-2">
+        <Button
+          className="w-full"
+          size="lg"
+          disabled={!canConfirm}
+          onClick={handleConfirm}
+        >
+          {createAppointment.isPending ? "Reservando…" : "Confirmar turno"}
+        </Button>
+      </div>
     </>
   );
 }
