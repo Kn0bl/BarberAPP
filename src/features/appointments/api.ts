@@ -1,9 +1,57 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { agendaKeys } from "@/features/agenda/api";
+import { agendaKeys, type Appointment } from "@/features/agenda/api";
 import { supabase } from "@/integrations/supabase/client";
+import { toDateKey } from "@/lib/format";
 
 export const SLOT_TAKEN_MESSAGE = "Ese horario acaba de ocuparse, elegí otro";
+
+export const myAppointmentsKeys = {
+  list: (clientId: string) => ["my-appointments", clientId] as const,
+};
+
+export function useMyAppointments(clientId: string | null) {
+  return useQuery({
+    queryKey: myAppointmentsKeys.list(clientId ?? "none"),
+    queryFn: async (): Promise<Appointment[]> => {
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("*, service:services(id, name, price_cents)")
+        .eq("client_id", clientId as string)
+        .order("starts_at", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as Appointment[];
+    },
+    enabled: Boolean(clientId),
+  });
+}
+
+export interface CancelAppointmentInput {
+  id: string;
+  barbershopId: string;
+  startsAt: string;
+}
+
+export function useCancelAppointment(clientId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CancelAppointmentInput) => {
+      const { error } = await supabase
+        .from("appointments")
+        .update({ status: "cancelled" })
+        .eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: (_data, input) => {
+      queryClient.invalidateQueries({ queryKey: myAppointmentsKeys.list(clientId ?? "none") });
+      queryClient.invalidateQueries({
+        queryKey: agendaKeys.day(input.barbershopId, toDateKey(new Date(input.startsAt))),
+      });
+    },
+  });
+}
+
 
 export interface ClientAppointmentInput {
   clientId: string;
