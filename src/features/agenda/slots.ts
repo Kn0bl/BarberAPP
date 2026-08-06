@@ -48,3 +48,45 @@ export function dayRange(date: Date) {
   to.setDate(to.getDate() + 1);
   return { from, to };
 }
+
+interface BusyRange {
+  start: number;
+  end: number;
+}
+
+/**
+ * Horarios en los que se puede iniciar un turno de `durationMinutes`
+ * sin superponerse con turnos activos ni bloqueos del día.
+ */
+export function getAvailableSlots(
+  date: Date,
+  durationMinutes: number,
+  agendaDay: {
+    appointments: { starts_at: string; ends_at: string; status: string }[];
+    blocks: { starts_at: string; ends_at: string }[];
+  },
+): DaySlot[] {
+  const busy: BusyRange[] = [
+    ...agendaDay.appointments
+      .filter((appointment) => appointment.status !== "cancelled")
+      .map((appointment) => ({
+        start: new Date(appointment.starts_at).getTime(),
+        end: new Date(appointment.ends_at).getTime(),
+      })),
+    ...agendaDay.blocks.map((block) => ({
+      start: new Date(block.starts_at).getTime(),
+      end: new Date(block.ends_at).getTime(),
+    })),
+  ];
+
+  const now = Date.now();
+  const isToday = new Date().toDateString() === date.toDateString();
+
+  return generateDaySlots(date).filter((slot) => {
+    const start = slot.start.getTime();
+    const end = start + durationMinutes * 60_000;
+
+    if (isToday && start <= now) return false;
+    return !busy.some((range) => start < range.end && end > range.start);
+  });
+}
