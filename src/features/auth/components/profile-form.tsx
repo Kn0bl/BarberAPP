@@ -7,13 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { updateProfile } from "@/features/auth/api";
 import { profileSchema, type ProfileValues } from "@/features/auth/schemas";
 import type { AuthContext } from "@/features/auth/types";
@@ -75,13 +75,13 @@ export function ProfileForm({ auth }: { auth: AuthContext }) {
                 </FormItem>
               )}
             />
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input value={auth.user.email ?? ""} readOnly disabled />
-              </FormControl>
-              <FormDescription>El email no se puede modificar por ahora.</FormDescription>
-            </FormItem>
+            <div className="space-y-2">
+              <Label htmlFor="profile-email">Email</Label>
+              <Input id="profile-email" value={auth.user.email ?? ""} readOnly disabled />
+              <p className="text-sm text-muted-foreground">
+                El email no se puede modificar por ahora.
+              </p>
+            </div>
 
             <Button
               type="submit"
