@@ -51,7 +51,7 @@ export function useAgendaDay(barbershopId: string | null, dayKey: string, date: 
   return useQuery({
     queryKey: agendaKeys.day(barbershopId ?? "none", dayKey),
     queryFn: () => fetchAgendaDay(barbershopId as string, date),
-    enabled: Boolean(barbershopId),
+    enabled: Boolean(barbershopId) && dayKey !== "none",
   });
 }
 
