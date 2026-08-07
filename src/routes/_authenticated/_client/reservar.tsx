@@ -8,11 +8,12 @@ import { ErrorState } from "@/components/common/error-state";
 import { LoadingState } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { useAgendaDay } from "@/features/agenda/api";
 import { getAvailableSlots, isOpenDay } from "@/features/agenda/slots";
 import { useCreateClientAppointment } from "@/features/appointments/api";
 import { useServices, type Service } from "@/features/services/api";
-import { addDays, formatCurrency, formatDayLabel, toDateKey } from "@/lib/format";
+import { addDays, formatCurrency, toDateKey } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/_client/reservar")({
@@ -56,8 +57,15 @@ function BookingPage() {
   const navigate = useNavigate();
 
   const days = useUpcomingDays();
+  const today = useMemo(() => {
+    const base = days[0] ? new Date(days[0]) : new Date();
+    base.setHours(0, 0, 0, 0);
+    return base;
+  }, [days]);
+  const maxDate = useMemo(() => addDays(today, DAYS_AHEAD - 1), [today]);
+
   const [service, setService] = useState<Service | null>(null);
-  const [date, setDate] = useState<Date | null>(days[0] ?? null);
+  const [date, setDate] = useState<Date | null>(null);
   const [slotTime, setSlotTime] = useState<string | null>(null);
 
   const dayKey = date ? toDateKey(date) : "none";
@@ -150,33 +158,24 @@ function BookingPage() {
 
       <section className="space-y-3">
         <StepTitle step={2} title="Elegí el día" />
-        <div className="-mx-4 overflow-x-auto px-4">
-          <div className="flex gap-2 pb-1">
-            {days.map((day) => {
-              const key = toDateKey(day);
-              const selected = dayKey === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => {
-                    setDate(day);
-                    setSlotTime(null);
-                  }}
-                  className={cn(
-                    "shrink-0 rounded-xl border border-border px-4 py-2 text-xs capitalize transition-colors",
-                    selected
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "bg-card hover:bg-accent",
-                  )}
-                >
-                  {formatDayLabel(day)}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+
+        {!service ? (
+          <p className="text-sm text-muted-foreground">
+            Primero elegí un servicio para ver el calendario.
+          </p>
+        ) : (
+          <Calendar
+            mode="single"
+            selected={date ?? undefined}
+            onSelect={(selected) => {
+              if (!selected) return;
+              setDate(selected);
+              setSlotTime(null);
+            }}
+            disabled={(day) => day < today || day > maxDate || !isOpenDay(day)}
+            className="rounded-xl border border-border bg-card mx-auto"
+          />
+        )}
       </section>
 
       <section className="space-y-3">
@@ -186,12 +185,16 @@ function BookingPage() {
           <p className="text-sm text-muted-foreground">
             Primero elegí un servicio para ver los horarios disponibles.
           </p>
+        ) : !date ? (
+          <p className="text-sm text-muted-foreground">
+            Ahora elegí un día para ver los horarios disponibles.
+          </p>
         ) : null}
 
-        {service && agendaDay.isLoading ? <LoadingState rows={3} /> : null}
-        {service && agendaDay.isError ? <ErrorState onRetry={() => agendaDay.refetch()} /> : null}
+        {service && date && agendaDay.isLoading ? <LoadingState rows={3} /> : null}
+        {service && date && agendaDay.isError ? <ErrorState onRetry={() => agendaDay.refetch()} /> : null}
 
-        {service && agendaDay.isSuccess && slots.length === 0 ? (
+        {service && date && agendaDay.isSuccess && slots.length === 0 ? (
           <EmptyState
             icon={CalendarPlus}
             title="Sin horarios disponibles"
@@ -199,7 +202,7 @@ function BookingPage() {
           />
         ) : null}
 
-        {service && slots.length > 0 ? (
+        {service && date && slots.length > 0 ? (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
             {slots.map((slot) => {
               const selected = slotTime === slot.time;
