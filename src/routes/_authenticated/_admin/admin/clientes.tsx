@@ -1,13 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Users } from "lucide-react";
+import { MessageCircle, Search, Users } from "lucide-react";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { LoadingState } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useClients } from "@/features/clients/api";
+import { useClients, type ClientListItem } from "@/features/clients/api";
+
+function whatsappHref(client: ClientListItem) {
+  const firstName = client.fullName.trim().split(/\s+/)[0] ?? "";
+  const message = `¡Hola ${firstName}! Hace un tiempo que no te vemos por la barbería 💈 ¿Querés reservar tu próximo corte?`;
+  return `https://wa.me/${(client.phone ?? "").replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
+}
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/clientes")({
   head: () => ({
