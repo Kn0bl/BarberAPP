@@ -1,11 +1,16 @@
 /**
  * Generación de horarios de la agenda.
- * Fase 1: fijo (lunes a sábado, 10:00 a 19:00, cada 30 minutos).
- * La configuración por barbería llega en un sprint posterior.
+ * Los horarios reales viven en `availability` (por barbería y día de semana)
+ * y el intervalo de turno en `barbershop_settings.slot_interval_minutes`.
  */
-export const OPEN_HOUR = 10;
-export const CLOSE_HOUR = 19;
-export const SLOT_MINUTES = 30;
+
+export interface WeekdayWindow {
+  /** 0 (domingo) a 6 (sábado) */
+  weekday: number;
+  /** Minutos desde medianoche */
+  startMinutes: number;
+  endMinutes: number;
+}
 
 export interface DaySlot {
   /** `10:30` — clave estable dentro del día. */
@@ -14,23 +19,30 @@ export interface DaySlot {
   end: Date;
 }
 
-/** Domingo (0) cerrado. */
-export function isOpenDay(date: Date) {
-  return date.getDay() !== 0;
+function getDayWindow(date: Date, availability: WeekdayWindow[]): WeekdayWindow | null {
+  return availability.find((window) => window.weekday === date.getDay()) ?? null;
 }
 
-export function generateDaySlots(date: Date): DaySlot[] {
-  if (!isOpenDay(date)) return [];
+export function isOpenDay(date: Date, availability: WeekdayWindow[]): boolean {
+  return getDayWindow(date, availability) !== null;
+}
+
+export function generateDaySlots(
+  date: Date,
+  availability: WeekdayWindow[],
+  slotMinutes: number,
+): DaySlot[] {
+  const window = getDayWindow(date, availability);
+  if (!window || slotMinutes <= 0) return [];
 
   const slots: DaySlot[] = [];
-  const total = ((CLOSE_HOUR - OPEN_HOUR) * 60) / SLOT_MINUTES;
-
-  for (let index = 0; index <= total; index += 1) {
+  for (let minutes = window.startMinutes; minutes < window.endMinutes; minutes += slotMinutes) {
     const start = new Date(date);
-    start.setHours(OPEN_HOUR, index * SLOT_MINUTES, 0, 0);
-    if (start.getHours() > CLOSE_HOUR) break;
+    start.setHours(0, minutes, 0, 0);
+    const end = new Date(start.getTime() + slotMinutes * 60_000);
 
-    const end = new Date(start.getTime() + SLOT_MINUTES * 60_000);
+    if (end.getHours() * 60 + end.getMinutes() > window.endMinutes) break;
+
     slots.push({
       time: `${`${start.getHours()}`.padStart(2, "0")}:${`${start.getMinutes()}`.padStart(2, "0")}`,
       start,
@@ -56,16 +68,25 @@ interface BusyRange {
 
 /**
  * Horarios en los que se puede iniciar un turno de `durationMinutes`
- * sin superponerse con turnos activos ni bloqueos del día.
+ * sin superponerse con turnos activos, bloqueos del día, ni pasarse
+ * del horario de cierre.
  */
 export function getAvailableSlots(
   date: Date,
   durationMinutes: number,
+  availability: WeekdayWindow[],
+  slotMinutes: number,
   agendaDay: {
     appointments: { starts_at: string; ends_at: string; status: string }[];
     blocks: { starts_at: string; ends_at: string }[];
   },
 ): DaySlot[] {
+  const window = getDayWindow(date, availability);
+  if (!window) return [];
+
+  const closing = new Date(date);
+  closing.setHours(0, window.endMinutes, 0, 0);
+
   const busy: BusyRange[] = [
     ...agendaDay.appointments
       .filter((appointment) => appointment.status !== "cancelled")
@@ -82,10 +103,11 @@ export function getAvailableSlots(
   const now = Date.now();
   const isToday = new Date().toDateString() === date.toDateString();
 
-  return generateDaySlots(date).filter((slot) => {
+  return generateDaySlots(date, availability, slotMinutes).filter((slot) => {
     const start = slot.start.getTime();
     const end = start + durationMinutes * 60_000;
 
+    if (end > closing.getTime()) return false;
     if (isToday && start <= now) return false;
     return !busy.some((range) => start < range.end && end > range.start);
   });
