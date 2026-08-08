@@ -9,7 +9,7 @@ import { LoadingState } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useAgendaDay } from "@/features/agenda/api";
+import { useAgendaDay, useBarbershopSchedule } from "@/features/agenda/api";
 import { getAvailableSlots, isOpenDay } from "@/features/agenda/slots";
 import { useCreateClientAppointment } from "@/features/appointments/api";
 import { useServices, type Service } from "@/features/services/api";
