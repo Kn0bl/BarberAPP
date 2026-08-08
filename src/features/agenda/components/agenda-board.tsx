@@ -18,6 +18,7 @@ import { formatCurrency, formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   useAgendaDay,
+  useBarbershopSchedule,
   useCreateAppointment,
   useCreateTimeBlock,
   useDeleteTimeBlock,
