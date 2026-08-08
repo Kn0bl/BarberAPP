@@ -2,7 +2,53 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { dayRange } from "./slots";
+import { dayRange, type WeekdayWindow } from "./slots";
+
+export interface BarbershopSchedule {
+  availability: WeekdayWindow[];
+  slotMinutes: number;
+}
+
+export const scheduleKeys = {
+  detail: (barbershopId: string) => ["schedule", barbershopId] as const,
+};
+
+export function useBarbershopSchedule(barbershopId: string | null) {
+  return useQuery({
+    queryKey: scheduleKeys.detail(barbershopId ?? "none"),
+    queryFn: async (): Promise<BarbershopSchedule> => {
+      const [availabilityResult, settingsResult] = await Promise.all([
+        supabase
+          .from("availability")
+          .select("weekday, start_time, end_time")
+          .eq("barbershop_id", barbershopId as string)
+          .eq("is_active", true),
+        supabase
+          .from("barbershop_settings")
+          .select("slot_interval_minutes")
+          .eq("barbershop_id", barbershopId as string)
+          .maybeSingle(),
+      ]);
+
+      const availability = (availabilityResult.data ?? []).map((row) => {
+        const [startH, startM] = row.start_time.split(":").map(Number);
+        const [endH, endM] = row.end_time.split(":").map(Number);
+        return {
+          weekday: row.weekday,
+          startMinutes: startH * 60 + startM,
+          endMinutes: endH * 60 + endM,
+        };
+      });
+
+      return {
+        availability,
+        slotMinutes: settingsResult.data?.slot_interval_minutes ?? 30,
+      };
+    },
+    enabled: Boolean(barbershopId),
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export type Appointment = Tables<"appointments"> & {
   service: Pick<Tables<"services">, "id" | "name" | "price_cents"> | null;
