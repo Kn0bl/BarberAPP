@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ import { profileSchema, type ProfileValues } from "@/features/auth/schemas";
 import type { AuthContext } from "@/features/auth/types";
 
 export function ProfileForm({ auth }: { auth: AuthContext }) {
+  const router = useRouter();
   const form = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -34,6 +36,7 @@ export function ProfileForm({ auth }: { auth: AuthContext }) {
         phone: values.phone,
       });
       toast.success("Perfil actualizado");
+      router.invalidate();
       form.reset(values);
     } catch {
       toast.error("No pudimos guardar los cambios");

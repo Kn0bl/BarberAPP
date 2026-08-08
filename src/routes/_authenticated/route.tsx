@@ -8,6 +8,7 @@ import { fetchAuthContext } from "@/features/auth/api";
  */
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  staleTime: 5 * 60 * 1000,
   beforeLoad: async () => {
     const auth = await fetchAuthContext();
     if (!auth) throw redirect({ to: "/auth" });
