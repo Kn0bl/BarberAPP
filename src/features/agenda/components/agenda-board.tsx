@@ -86,10 +86,12 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
     });
   }, [slots, agenda.data]);
 
-  if (!isOpenDay(date)) {
+  if (schedule.isLoading) return <LoadingState rows={5} />;
+
+  if (schedule.data && !isOpenDay(date, schedule.data.availability)) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-card/50 px-6 py-12 text-center text-sm text-muted-foreground">
-        La barbería no atiende los domingos.
+        La barbería no atiende este día.
       </div>
     );
   }
