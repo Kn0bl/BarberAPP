@@ -156,6 +156,8 @@ function BookingPage() {
           <p className="text-sm text-muted-foreground">
             Primero elegí un servicio para ver el calendario.
           </p>
+        ) : schedule.isLoading ? (
+          <LoadingState rows={3} />
         ) : (
           <Calendar
             mode="single"
@@ -165,7 +167,11 @@ function BookingPage() {
               setDate(selected);
               setSlotTime(null);
             }}
-            disabled={(day) => day < today || day > maxDate || !isOpenDay(day)}
+            disabled={(day) =>
+              day < today ||
+              day > maxDate ||
+              !isOpenDay(day, schedule.data?.availability ?? [])
+            }
             className="rounded-xl border border-border bg-card mx-auto"
           />
         )}
