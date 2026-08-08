@@ -30,18 +30,8 @@ export const Route = createFileRoute("/_authenticated/_client/reservar")({
 
 const DAYS_AHEAD = 14;
 
-function useUpcomingDays() {
-  return useMemo(() => {
-    const today = new Date();
-    const days: Date[] = [];
-    for (let index = 0; index < DAYS_AHEAD; index += 1) {
-      const date = addDays(today, index);
-      date.setHours(0, 0, 0, 0);
-      if (isOpenDay(date)) days.push(date);
-    }
-    return days;
-  }, []);
-}
+function StepTitle({ step, title }: { step: number; title: string }) {
+
 
 function StepTitle({ step, title }: { step: number; title: string }) {
   return (
