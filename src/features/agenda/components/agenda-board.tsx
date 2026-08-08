@@ -18,6 +18,7 @@ import { formatCurrency, formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   useAgendaDay,
+  useBarbershopSchedule,
   useCreateAppointment,
   useCreateTimeBlock,
   useDeleteTimeBlock,
@@ -49,6 +50,7 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
   const [sheet, setSheet] = useState<SheetState>({ type: "none" });
 
   const agenda = useAgendaDay(barbershopId, dayKey, date);
+  const schedule = useBarbershopSchedule(barbershopId);
   const services = useServices(barbershopId);
 
   const createAppointment = useCreateAppointment(barbershopId, dayKey);
@@ -57,7 +59,15 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
   const createBlock = useCreateTimeBlock(barbershopId, dayKey);
   const deleteBlock = useDeleteTimeBlock(barbershopId, dayKey);
 
-  const slots = useMemo(() => generateDaySlots(date), [date]);
+  const slots = useMemo(
+    () =>
+      generateDaySlots(
+        date,
+        schedule.data?.availability ?? [],
+        schedule.data?.slotMinutes ?? 30,
+      ),
+    [date, schedule.data],
+  );
 
   const rows = useMemo(() => {
     const appointments = agenda.data?.appointments ?? [];
@@ -76,10 +86,12 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
     });
   }, [slots, agenda.data]);
 
-  if (!isOpenDay(date)) {
+  if (schedule.isLoading) return <LoadingState rows={5} />;
+
+  if (schedule.data && !isOpenDay(date, schedule.data.availability)) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-card/50 px-6 py-12 text-center text-sm text-muted-foreground">
-        La barbería no atiende los domingos.
+        La barbería no atiende este día.
       </div>
     );
   }

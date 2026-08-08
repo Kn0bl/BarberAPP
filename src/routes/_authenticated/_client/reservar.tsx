@@ -9,7 +9,7 @@ import { LoadingState } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useAgendaDay } from "@/features/agenda/api";
+import { useAgendaDay, useBarbershopSchedule } from "@/features/agenda/api";
 import { getAvailableSlots, isOpenDay } from "@/features/agenda/slots";
 import { useCreateClientAppointment } from "@/features/appointments/api";
 import { useServices, type Service } from "@/features/services/api";
@@ -30,19 +30,6 @@ export const Route = createFileRoute("/_authenticated/_client/reservar")({
 
 const DAYS_AHEAD = 14;
 
-function useUpcomingDays() {
-  return useMemo(() => {
-    const today = new Date();
-    const days: Date[] = [];
-    for (let index = 0; index < DAYS_AHEAD; index += 1) {
-      const date = addDays(today, index);
-      date.setHours(0, 0, 0, 0);
-      if (isOpenDay(date)) days.push(date);
-    }
-    return days;
-  }, []);
-}
-
 function StepTitle({ step, title }: { step: number; title: string }) {
   return (
     <h2 className="text-sm font-medium">
@@ -56,12 +43,11 @@ function BookingPage() {
   const { auth } = Route.useRouteContext();
   const navigate = useNavigate();
 
-  const days = useUpcomingDays();
   const today = useMemo(() => {
-    const base = days[0] ? new Date(days[0]) : new Date();
-    base.setHours(0, 0, 0, 0);
-    return base;
-  }, [days]);
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
   const maxDate = useMemo(() => addDays(today, DAYS_AHEAD - 1), [today]);
 
   const [service, setService] = useState<Service | null>(null);
@@ -70,13 +56,20 @@ function BookingPage() {
 
   const dayKey = date ? toDateKey(date) : "none";
   const services = useServices(auth.barbershopId);
+  const schedule = useBarbershopSchedule(auth.barbershopId);
   const agendaDay = useAgendaDay(auth.barbershopId, dayKey, date ?? new Date());
   const createAppointment = useCreateClientAppointment(auth.barbershopId, dayKey);
 
   const slots = useMemo(() => {
     if (!date || !service || !agendaDay.data) return [];
-    return getAvailableSlots(date, service.duration_minutes, agendaDay.data);
-  }, [date, service, agendaDay.data]);
+    return getAvailableSlots(
+      date,
+      service.duration_minutes,
+      schedule.data?.availability ?? [],
+      schedule.data?.slotMinutes ?? 30,
+      agendaDay.data,
+    );
+  }, [date, service, agendaDay.data, schedule.data]);
 
   const selectedSlot = slots.find((slot) => slot.time === slotTime) ?? null;
   const canConfirm = Boolean(service && date && selectedSlot) && !createAppointment.isPending;
@@ -163,6 +156,8 @@ function BookingPage() {
           <p className="text-sm text-muted-foreground">
             Primero elegí un servicio para ver el calendario.
           </p>
+        ) : schedule.isLoading ? (
+          <LoadingState rows={3} />
         ) : (
           <Calendar
             mode="single"
@@ -172,7 +167,11 @@ function BookingPage() {
               setDate(selected);
               setSlotTime(null);
             }}
-            disabled={(day) => day < today || day > maxDate || !isOpenDay(day)}
+            disabled={(day) =>
+              day < today ||
+              day > maxDate ||
+              !isOpenDay(day, schedule.data?.availability ?? [])
+            }
             className="rounded-xl border border-border bg-card mx-auto"
           />
         )}
