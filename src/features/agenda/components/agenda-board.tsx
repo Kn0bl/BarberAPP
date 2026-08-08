@@ -50,6 +50,7 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
   const [sheet, setSheet] = useState<SheetState>({ type: "none" });
 
   const agenda = useAgendaDay(barbershopId, dayKey, date);
+  const schedule = useBarbershopSchedule(barbershopId);
   const services = useServices(barbershopId);
 
   const createAppointment = useCreateAppointment(barbershopId, dayKey);
@@ -58,7 +59,15 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
   const createBlock = useCreateTimeBlock(barbershopId, dayKey);
   const deleteBlock = useDeleteTimeBlock(barbershopId, dayKey);
 
-  const slots = useMemo(() => generateDaySlots(date), [date]);
+  const slots = useMemo(
+    () =>
+      generateDaySlots(
+        date,
+        schedule.data?.availability ?? [],
+        schedule.data?.slotMinutes ?? 30,
+      ),
+    [date, schedule.data],
+  );
 
   const rows = useMemo(() => {
     const appointments = agenda.data?.appointments ?? [];
