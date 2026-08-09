@@ -50,6 +50,40 @@ export function useBarbershopSchedule(barbershopId: string | null) {
   });
 }
 
+export function useUpdateAvailability(barbershopId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (windows: WeekdayWindow[]) => {
+      if (!barbershopId) throw new Error("Falta la barbería");
+
+      const { error: deleteError } = await supabase
+        .from("availability")
+        .delete()
+        .eq("barbershop_id", barbershopId);
+      if (deleteError) throw deleteError;
+
+      if (windows.length > 0) {
+        const rows = windows.map((window) => ({
+          barbershop_id: barbershopId,
+          weekday: window.weekday,
+          start_time: `${Math.floor(window.startMinutes / 60)
+            .toString()
+            .padStart(2, "0")}:${(window.startMinutes % 60).toString().padStart(2, "0")}:00`,
+          end_time: `${Math.floor(window.endMinutes / 60)
+            .toString()
+            .padStart(2, "0")}:${(window.endMinutes % 60).toString().padStart(2, "0")}:00`,
+          is_active: true,
+        }));
+        const { error: insertError } = await supabase.from("availability").insert(rows);
+        if (insertError) throw insertError;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: scheduleKeys.detail(barbershopId ?? "none") });
+    },
+  });
+}
+
 export type Appointment = Tables<"appointments"> & {
   service: Pick<Tables<"services">, "id" | "name" | "price_cents"> | null;
 };
