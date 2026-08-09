@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Building2, Clock, UserRound, type LucideIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScheduleEditor } from "@/features/agenda/components/schedule-editor";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/configuracion")({
   head: () => ({
@@ -18,11 +19,6 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/configuracion
 
 const SECTIONS: { icon: LucideIcon; title: string; description: string }[] = [
   {
-    icon: Clock,
-    title: "Horarios",
-    description: "Hoy la agenda funciona de lunes a sábado, de 10:00 a 19:00, cada 30 minutos.",
-  },
-  {
     icon: Building2,
     title: "Barbería",
     description: "Nombre, dirección y datos de contacto que ven tus clientes.",
@@ -35,11 +31,28 @@ const SECTIONS: { icon: LucideIcon; title: string; description: string }[] = [
 ];
 
 function AdminSettingsPage() {
+  const { auth } = Route.useRouteContext();
+
   return (
     <>
       <PageHeader title="Configuración" description="Ajustes de la barbería y de tu cuenta." />
 
       <div className="space-y-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Clock className="size-4 text-primary" aria-hidden />
+              Horarios
+            </CardTitle>
+            <CardDescription>
+              Definí los días y horarios en que atiende tu barbería.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScheduleEditor barbershopId={auth.barbershopId} />
+          </CardContent>
+        </Card>
+
         {SECTIONS.map((section) => (
           <Card key={section.title}>
             <CardHeader>
@@ -56,3 +69,4 @@ function AdminSettingsPage() {
     </>
   );
 }
+
