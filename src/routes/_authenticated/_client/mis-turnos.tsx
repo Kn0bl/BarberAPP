@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Appointment } from "@/features/agenda/api";
+import { useBarbershopSchedule, type Appointment } from "@/features/agenda/api";
 import { APPOINTMENT_STATUS_LABEL } from "@/features/agenda/schemas";
 import { useCancelAppointment, useMyAppointments } from "@/features/appointments/api";
 import { formatCurrency, formatDayLabel, formatTime } from "@/lib/format";
