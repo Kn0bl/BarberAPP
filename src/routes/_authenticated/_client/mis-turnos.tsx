@@ -41,9 +41,11 @@ export const Route = createFileRoute("/_authenticated/_client/mis-turnos")({
 function AppointmentCard({
   appointment,
   onCancel,
+  cancelDisabledReason,
 }: {
   appointment: Appointment;
   onCancel?: () => void;
+  cancelDisabledReason?: string;
 }) {
   const date = new Date(appointment.starts_at);
   return (
@@ -66,6 +68,8 @@ function AppointmentCard({
             <Button variant="outline" size="sm" onClick={onCancel}>
               Cancelar
             </Button>
+          ) : cancelDisabledReason ? (
+            <p className="max-w-[12rem] text-xs text-muted-foreground">{cancelDisabledReason}</p>
           ) : null}
         </div>
       </CardContent>
