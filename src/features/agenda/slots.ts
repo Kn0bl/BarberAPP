@@ -76,6 +76,7 @@ export function getAvailableSlots(
   durationMinutes: number,
   availability: WeekdayWindow[],
   slotMinutes: number,
+  minNoticeMinutes: number,
   agendaDay: {
     appointments: { starts_at: string; ends_at: string; status: string }[];
     blocks: { starts_at: string; ends_at: string }[];
@@ -100,15 +101,14 @@ export function getAvailableSlots(
     })),
   ];
 
-  const now = Date.now();
-  const isToday = new Date().toDateString() === date.toDateString();
+  const earliestBookable = Date.now() + minNoticeMinutes * 60_000;
 
   return generateDaySlots(date, availability, slotMinutes).filter((slot) => {
     const start = slot.start.getTime();
     const end = start + durationMinutes * 60_000;
 
     if (end > closing.getTime()) return false;
-    if (isToday && start <= now) return false;
+    if (start < earliestBookable) return false;
     return !busy.some((range) => start < range.end && end > range.start);
   });
 }
