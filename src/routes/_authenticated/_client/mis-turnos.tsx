@@ -119,7 +119,7 @@ function MyAppointmentsPage() {
     <>
       <PageHeader title="Mis turnos" description="Próximos turnos e historial." />
 
-      {appointments.isLoading ? <LoadingState rows={3} /> : null}
+      {appointments.isLoading || schedule.isLoading ? <LoadingState rows={3} /> : null}
       {appointments.isError ? <ErrorState onRetry={() => appointments.refetch()} /> : null}
 
       {appointments.isSuccess ? (
