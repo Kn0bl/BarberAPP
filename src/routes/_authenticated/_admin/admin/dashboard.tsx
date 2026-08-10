@@ -143,59 +143,29 @@ function AdminDashboardPage() {
         })}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Ingresos por día</CardTitle>
-            <CardDescription>Últimos 14 días, sobre turnos marcados como realizados.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-                Cargando…
-              </div>
-            ) : (
-              <ChartContainer config={revenueConfig} className="h-64 w-full">
-                <BarChart data={stats.dailyRevenue}>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Servicios más pedidos</CardTitle>
-            <CardDescription>Últimos 35 días, por cantidad de turnos realizados.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-                Cargando…
-              </div>
-            ) : stats.topServices.length === 0 ? (
-              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-                Todavía no hay turnos realizados para mostrar.
-              </div>
-            ) : (
-              <ChartContainer config={servicesConfig} className="h-64 w-full">
-                <BarChart data={stats.topServices}>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle>Ingresos por día</CardTitle>
+          <CardDescription>Últimos 14 días, sobre turnos marcados como realizados.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+              Cargando…
+            </div>
+          ) : (
+            <ChartContainer config={revenueConfig} className="h-64 w-full">
+              <BarChart data={stats.dailyRevenue}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+                <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
     </>
   );
 }
