@@ -92,24 +92,11 @@ function AdminDashboardPage() {
       dailyRevenue.push({ label: shortDay(day), total: total / 100 });
     }
 
-    const serviceTotals = new Map();
-    for (const row of rows) {
-      if (row.status !== "completed") continue;
-      const name = row.service?.name ?? "Otro";
-      const current = serviceTotals.get(name) ?? { name, count: 0 };
-      current.count += 1;
-      serviceTotals.set(name, current);
-    }
-    const topServices = Array.from(serviceTotals.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
     return {
       monthRevenueCents,
       monthCompletedCount: monthCompleted.length,
       cancelRate,
       dailyRevenue,
-      topServices,
     };
   }, [summary.data]);
 
@@ -127,9 +114,6 @@ function AdminDashboardPage() {
     total: { label: "Ingresos", color: "var(--chart-1)" },
   } satisfies ChartConfig;
 
-  const servicesConfig = {
-    count: { label: "Turnos", color: "var(--chart-2)" },
-  } satisfies ChartConfig;
 
   return (
     <>
@@ -159,59 +143,29 @@ function AdminDashboardPage() {
         })}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Ingresos por día</CardTitle>
-            <CardDescription>Últimos 14 días, sobre turnos marcados como realizados.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-                Cargando…
-              </div>
-            ) : (
-              <ChartContainer config={revenueConfig} className="h-64 w-full">
-                <BarChart data={stats.dailyRevenue}>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Servicios más pedidos</CardTitle>
-            <CardDescription>Últimos 35 días, por cantidad de turnos realizados.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-                Cargando…
-              </div>
-            ) : stats.topServices.length === 0 ? (
-              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-                Todavía no hay turnos realizados para mostrar.
-              </div>
-            ) : (
-              <ChartContainer config={servicesConfig} className="h-64 w-full">
-                <BarChart data={stats.topServices}>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle>Ingresos por día</CardTitle>
+          <CardDescription>Últimos 14 días, sobre turnos marcados como realizados.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+              Cargando…
+            </div>
+          ) : (
+            <ChartContainer config={revenueConfig} className="h-64 w-full">
+              <BarChart data={stats.dailyRevenue}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+                <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
     </>
   );
 }
