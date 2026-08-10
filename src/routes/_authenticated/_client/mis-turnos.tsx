@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Appointment } from "@/features/agenda/api";
+import { useBarbershopSchedule, type Appointment } from "@/features/agenda/api";
 import { APPOINTMENT_STATUS_LABEL } from "@/features/agenda/schemas";
 import { useCancelAppointment, useMyAppointments } from "@/features/appointments/api";
 import { formatCurrency, formatDayLabel, formatTime } from "@/lib/format";
@@ -41,9 +41,11 @@ export const Route = createFileRoute("/_authenticated/_client/mis-turnos")({
 function AppointmentCard({
   appointment,
   onCancel,
+  cancelDisabledReason,
 }: {
   appointment: Appointment;
   onCancel?: () => void;
+  cancelDisabledReason?: string;
 }) {
   const date = new Date(appointment.starts_at);
   return (
@@ -66,6 +68,8 @@ function AppointmentCard({
             <Button variant="outline" size="sm" onClick={onCancel}>
               Cancelar
             </Button>
+          ) : cancelDisabledReason ? (
+            <p className="max-w-[12rem] text-xs text-muted-foreground">{cancelDisabledReason}</p>
           ) : null}
         </div>
       </CardContent>
@@ -76,6 +80,7 @@ function AppointmentCard({
 function MyAppointmentsPage() {
   const { auth } = Route.useRouteContext();
   const appointments = useMyAppointments(auth.user.id);
+  const schedule = useBarbershopSchedule(auth.barbershopId);
   const cancelAppointment = useCancelAppointment(auth.user.id);
   const [pendingCancel, setPendingCancel] = useState<Appointment | null>(null);
 
@@ -114,7 +119,7 @@ function MyAppointmentsPage() {
     <>
       <PageHeader title="Mis turnos" description="Próximos turnos e historial." />
 
-      {appointments.isLoading ? <LoadingState rows={3} /> : null}
+      {appointments.isLoading || schedule.isLoading ? <LoadingState rows={3} /> : null}
       {appointments.isError ? <ErrorState onRetry={() => appointments.refetch()} /> : null}
 
       {appointments.isSuccess ? (
@@ -131,17 +136,30 @@ function MyAppointmentsPage() {
                 description="Cuando reserves, vas a poder ver y cancelar tus turnos desde acá."
               />
             ) : (
-              upcoming.map((appointment) => (
-                <AppointmentCard
-                  key={appointment.id}
-                  appointment={appointment}
-                  onCancel={
-                    appointment.status === "pending" || appointment.status === "confirmed"
-                      ? () => setPendingCancel(appointment)
-                      : undefined
-                  }
-                />
-              ))
+              upcoming.map((appointment) => {
+                const hoursUntil =
+                  (new Date(appointment.starts_at).getTime() - Date.now()) / 3_600_000;
+                const cancelWindow = schedule.data?.cancellationWindowHours ?? 12;
+                const withinCancelWindow = hoursUntil >= cancelWindow;
+                const isCancellableStatus =
+                  appointment.status === "pending" || appointment.status === "confirmed";
+                return (
+                  <AppointmentCard
+                    key={appointment.id}
+                    appointment={appointment}
+                    onCancel={
+                      isCancellableStatus && withinCancelWindow
+                        ? () => setPendingCancel(appointment)
+                        : undefined
+                    }
+                    cancelDisabledReason={
+                      isCancellableStatus && !withinCancelWindow
+                        ? `Ya no se puede cancelar (mínimo ${cancelWindow} h de anticipación)`
+                        : undefined
+                    }
+                  />
+                );
+              })
             )}
           </TabsContent>
           <TabsContent value="historial" className="mt-4 space-y-3">
