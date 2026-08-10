@@ -19,6 +19,8 @@ export interface NavItem {
   icon: LucideIcon;
   /** Se muestra en la barra inferior móvil. */
   primary?: boolean;
+  /** Destaca visualmente el item en la navegación inferior. */
+  featured?: boolean;
 }
 
 export const CUSTOMER_NAV: NavItem[] = [
@@ -31,8 +33,8 @@ export const CUSTOMER_NAV: NavItem[] = [
 export const OWNER_NAV: NavItem[] = [
   { to: "/admin/agenda", label: "Agenda", icon: CalendarDays, primary: true },
   { to: "/admin/clientes", label: "Clientes", icon: Users, primary: true },
+  { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, primary: true, featured: true },
   { to: "/admin/servicios", label: "Servicios", icon: Scissors, primary: true },
-  { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, primary: true },
   { to: "/admin/configuracion", label: "Configuración", icon: Settings, primary: true },
   { to: "/admin/perfil", label: "Perfil", icon: UserRound },
 ];

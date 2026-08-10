@@ -20,6 +20,29 @@ export function BottomNav({ items }: { items: NavItem[] }) {
       <ul className="grid" style={{ gridTemplateColumns: `repeat(${visible.length}, minmax(0, 1fr))` }}>
         {visible.map((item) => {
           const active = isActive(pathname, item.to);
+          if (item.featured) {
+            return (
+              <li key={item.to} className="relative flex justify-center">
+                <Link
+                  to={item.to}
+                  className={cn(
+                    "flex -translate-y-3 flex-col items-center gap-1 text-[11px] font-medium transition-colors",
+                    active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex size-12 items-center justify-center rounded-full border border-border shadow-md transition-colors",
+                      active ? "bg-primary text-primary-foreground" : "bg-background text-foreground",
+                    )}
+                  >
+                    <item.icon className="size-6" aria-hidden />
+                  </span>
+                  {item.label}
+                </Link>
+              </li>
+            );
+          }
           return (
             <li key={item.to}>
               <Link
