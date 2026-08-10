@@ -67,6 +67,7 @@ function BookingPage() {
       service.duration_minutes,
       schedule.data?.availability ?? [],
       schedule.data?.slotMinutes ?? 30,
+      schedule.data?.minNoticeMinutes ?? 60,
       agendaDay.data,
     );
   }, [date, service, agendaDay.data, schedule.data]);
