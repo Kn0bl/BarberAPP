@@ -7,6 +7,9 @@ import { dayRange, type WeekdayWindow } from "./slots";
 export interface BarbershopSchedule {
   availability: WeekdayWindow[];
   slotMinutes: number;
+  cancellationWindowHours: number;
+  bookingWindowDays: number;
+  minNoticeMinutes: number;
 }
 
 export const scheduleKeys = {
