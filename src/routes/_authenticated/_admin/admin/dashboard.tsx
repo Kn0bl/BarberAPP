@@ -1,9 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, CalendarRange, Wallet } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { CalendarCheck, CircleSlash, Users2, Wallet } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { useClients } from "@/features/clients/api";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/format";
 
@@ -11,77 +15,202 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Panel Navaja" },
-      { name: "description", content: "Resumen de turnos e ingresos estimados de la barbería." },
+      { name: "description", content: "Métricas completas de turnos, ingresos y clientes de la barbería." },
       { property: "og:title", content: "Dashboard — Panel Navaja" },
-      { property: "og:description", content: "Resumen de turnos e ingresos estimados de la barbería." },
+      { property: "og:description", content: "Métricas completas de turnos, ingresos y clientes de la barbería." },
     ],
   }),
   component: AdminDashboardPage,
 });
 
+const DAYS_OF_HISTORY = 35;
+const CHART_DAYS = 14;
+
+interface AppointmentRow {
+  starts_at: string;
+  price_cents: number | null;
+  status: string;
+  service: { name: string } | null;
+}
+
+function shortDay(date: Date) {
+  return new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "2-digit" }).format(date);
+}
+
 function AdminDashboardPage() {
   const { auth } = Route.useRouteContext();
+  const clients = useClients(auth.barbershopId);
 
   const summary = useQuery({
     queryKey: ["dashboard", auth.barbershopId ?? "none"],
     enabled: Boolean(auth.barbershopId),
     queryFn: async () => {
-      const dayStart = new Date();
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart);
-      dayEnd.setDate(dayEnd.getDate() + 1);
-      const weekEnd = new Date(dayStart);
-      weekEnd.setDate(weekEnd.getDate() + 7);
+      const from = new Date();
+      from.setHours(0, 0, 0, 0);
+      from.setDate(from.getDate() - (DAYS_OF_HISTORY - 1));
 
       const { data, error } = await supabase
         .from("appointments")
-        .select("starts_at, price_cents, status")
+        .select("starts_at, price_cents, status, service:services(name)")
         .eq("barbershop_id", auth.barbershopId as string)
-        .neq("status", "cancelled")
-        .gte("starts_at", dayStart.toISOString())
-        .lt("starts_at", weekEnd.toISOString());
+        .gte("starts_at", from.toISOString());
       if (error) throw error;
 
-      const rows = data ?? [];
-      const today = rows.filter((row) => new Date(row.starts_at) < dayEnd);
-
-      return {
-        today: today.length,
-        week: rows.length,
-        revenueCents: today.reduce((total, row) => total + (row.price_cents ?? 0), 0),
-      };
+      return (data ?? []) as AppointmentRow[];
     },
   });
 
-  const cards = [
-    { icon: CalendarDays, label: "Turnos de hoy", value: String(summary.data?.today ?? 0) },
-    { icon: CalendarRange, label: "Turnos de la semana", value: String(summary.data?.week ?? 0) },
-    {
-      icon: Wallet,
-      label: "Ingresos estimados del día",
-      value: formatCurrency(summary.data?.revenueCents ?? 0),
-    },
+  const stats = useMemo(() => {
+    const rows = summary.data ?? [];
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const monthRows = rows.filter((row) => new Date(row.starts_at) >= monthStart);
+    const monthCompleted = monthRows.filter((row) => row.status === "completed");
+    const monthRevenueCents = monthCompleted.reduce((total, row) => total + (row.price_cents ?? 0), 0);
+
+    const dueRows = monthRows.filter((row) => new Date(row.starts_at) <= now);
+    const dueLost = dueRows.filter((row) => row.status === "cancelled" || row.status === "no_show");
+    const cancelRate = dueRows.length > 0 ? Math.round((dueLost.length / dueRows.length) * 100) : 0;
+
+    const dailyRevenue: { label: string; total: number }[] = [];
+    for (let i = CHART_DAYS - 1; i >= 0; i -= 1) {
+      const day = new Date(now);
+      day.setHours(0, 0, 0, 0);
+      day.setDate(day.getDate() - i);
+      const nextDay = new Date(day);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      const total = rows
+        .filter((row) => row.status === "completed")
+        .filter((row) => {
+          const date = new Date(row.starts_at);
+          return date >= day && date < nextDay;
+        })
+        .reduce((sum, row) => sum + (row.price_cents ?? 0), 0);
+
+      dailyRevenue.push({ label: shortDay(day), total: total / 100 });
+    }
+
+    const serviceTotals = new Map();
+    for (const row of rows) {
+      if (row.status !== "completed") continue;
+      const name = row.service?.name ?? "Otro";
+      const current = serviceTotals.get(name) ?? { name, count: 0 };
+      current.count += 1;
+      serviceTotals.set(name, current);
+    }
+    const topServices = Array.from(serviceTotals.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return {
+      monthRevenueCents,
+      monthCompletedCount: monthCompleted.length,
+      cancelRate,
+      dailyRevenue,
+      topServices,
+    };
+  }, [summary.data]);
+
+  const isLoading = summary.isLoading || clients.isLoading;
+  const overdueCount = clients.data?.filter((client) => client.isOverdue).length ?? 0;
+
+  const cards: { icon: typeof Wallet; label: string; value: string; href?: string }[] = [
+    { icon: Wallet, label: "Ingresos del mes", value: formatCurrency(stats.monthRevenueCents) },
+    { icon: CalendarCheck, label: "Turnos realizados este mes", value: String(stats.monthCompletedCount) },
+    { icon: CircleSlash, label: "Cancelaciones / no-show", value: `${stats.cancelRate}%` },
+    { icon: Users2, label: "Clientes atrasados", value: String(overdueCount), href: "/admin/clientes" },
   ];
+
+  const revenueConfig = {
+    total: { label: "Ingresos", color: "var(--chart-1)" },
+  } satisfies ChartConfig;
+
+  const servicesConfig = {
+    count: { label: "Turnos", color: "var(--chart-2)" },
+  } satisfies ChartConfig;
 
   return (
     <>
-      <PageHeader title="Dashboard" description="Un vistazo rápido a tu barbería." />
+      <PageHeader title="Dashboard" description="Métricas completas de tu barbería." />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {cards.map((card) => (
-          <Card key={card.label}>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2">
-                <card.icon className="size-4" aria-hidden />
-                {card.label}
-              </CardDescription>
-              <CardTitle className="text-2xl">{summary.isLoading ? "—" : card.value}</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 text-xs text-muted-foreground">
-              Calculado sobre los turnos cargados en la agenda.
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((card) => {
+          const body = (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription className="flex items-center gap-2">
+                  <card.icon className="size-4" aria-hidden />
+                  {card.label}
+                </CardDescription>
+                <CardTitle className="text-2xl">{isLoading ? "—" : card.value}</CardTitle>
+              </CardHeader>
+            </Card>
+          );
+
+          return card.href ? (
+            <Link key={card.label} to={card.href} className="block transition-opacity hover:opacity-90">
+              {body}
+            </Link>
+          ) : (
+            <div key={card.label}>{body}</div>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Ingresos por día</CardTitle>
+            <CardDescription>Últimos 14 días, sobre turnos marcados como realizados.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+                Cargando…
+              </div>
+            ) : (
+              <ChartContainer config={revenueConfig} className="h-64 w-full">
+                <BarChart data={stats.dailyRevenue}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Servicios más pedidos</CardTitle>
+            <CardDescription>Últimos 35 días, por cantidad de turnos realizados.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+                Cargando…
+              </div>
+            ) : stats.topServices.length === 0 ? (
+              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+                Todavía no hay turnos realizados para mostrar.
+              </div>
+            ) : (
+              <ChartContainer config={servicesConfig} className="h-64 w-full">
+                <BarChart data={stats.topServices}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
+                  <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </>
   );
