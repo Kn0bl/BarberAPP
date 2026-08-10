@@ -48,7 +48,6 @@ function BookingPage() {
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
-  const maxDate = useMemo(() => addDays(today, DAYS_AHEAD - 1), [today]);
 
   const [service, setService] = useState<Service | null>(null);
   const [date, setDate] = useState<Date | null>(null);
@@ -57,6 +56,10 @@ function BookingPage() {
   const dayKey = date ? toDateKey(date) : "none";
   const services = useServices(auth.barbershopId);
   const schedule = useBarbershopSchedule(auth.barbershopId);
+  const maxDate = useMemo(
+    () => addDays(today, (schedule.data?.bookingWindowDays ?? 14) - 1),
+    [today, schedule.data],
+  );
   const agendaDay = useAgendaDay(auth.barbershopId, dayKey, date ?? new Date());
   const createAppointment = useCreateClientAppointment(auth.barbershopId, dayKey);
 
