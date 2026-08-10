@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/_client/reservar")({
   component: BookingPage,
 });
 
-const DAYS_AHEAD = 14;
+
 
 function StepTitle({ step, title }: { step: number; title: string }) {
   return (
