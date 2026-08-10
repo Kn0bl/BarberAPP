@@ -80,6 +80,7 @@ function AppointmentCard({
 function MyAppointmentsPage() {
   const { auth } = Route.useRouteContext();
   const appointments = useMyAppointments(auth.user.id);
+  const schedule = useBarbershopSchedule(auth.barbershopId);
   const cancelAppointment = useCancelAppointment(auth.user.id);
   const [pendingCancel, setPendingCancel] = useState<Appointment | null>(null);
 
