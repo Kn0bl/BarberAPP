@@ -28,7 +28,7 @@ export function useBarbershopSchedule(barbershopId: string | null) {
           .eq("is_active", true),
         supabase
           .from("barbershop_settings")
-          .select("slot_interval_minutes")
+          .select("slot_interval_minutes, cancellation_window_hours, booking_window_days, min_notice_minutes")
           .eq("barbershop_id", barbershopId as string)
           .maybeSingle(),
       ]);
@@ -46,6 +46,9 @@ export function useBarbershopSchedule(barbershopId: string | null) {
       return {
         availability,
         slotMinutes: settingsResult.data?.slot_interval_minutes ?? 30,
+        cancellationWindowHours: settingsResult.data?.cancellation_window_hours ?? 12,
+        bookingWindowDays: settingsResult.data?.booking_window_days ?? 14,
+        minNoticeMinutes: settingsResult.data?.min_notice_minutes ?? 60,
       };
     },
     enabled: Boolean(barbershopId),
