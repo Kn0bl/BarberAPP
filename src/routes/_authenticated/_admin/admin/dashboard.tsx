@@ -92,24 +92,11 @@ function AdminDashboardPage() {
       dailyRevenue.push({ label: shortDay(day), total: total / 100 });
     }
 
-    const serviceTotals = new Map();
-    for (const row of rows) {
-      if (row.status !== "completed") continue;
-      const name = row.service?.name ?? "Otro";
-      const current = serviceTotals.get(name) ?? { name, count: 0 };
-      current.count += 1;
-      serviceTotals.set(name, current);
-    }
-    const topServices = Array.from(serviceTotals.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
     return {
       monthRevenueCents,
       monthCompletedCount: monthCompleted.length,
       cancelRate,
       dailyRevenue,
-      topServices,
     };
   }, [summary.data]);
 
@@ -127,9 +114,6 @@ function AdminDashboardPage() {
     total: { label: "Ingresos", color: "var(--chart-1)" },
   } satisfies ChartConfig;
 
-  const servicesConfig = {
-    count: { label: "Turnos", color: "var(--chart-2)" },
-  } satisfies ChartConfig;
 
   return (
     <>
