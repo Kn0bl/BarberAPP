@@ -49,6 +49,21 @@ function AdminSettingsPage() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Building2 className="size-4 text-primary" aria-hidden />
+              Barbería
+            </CardTitle>
+            <CardDescription>
+              Nombre, dirección y datos de contacto que ven tus clientes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BarbershopForm barbershopId={auth.barbershopId} />
+          </CardContent>
+        </Card>
+
         {SECTIONS.map((section) => (
           <Card key={section.title}>
             <CardHeader>
