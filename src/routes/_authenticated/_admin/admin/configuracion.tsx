@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Clock, UserRound, type LucideIcon } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Building2, ChevronRight, Clock, UserRound, type LucideIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
