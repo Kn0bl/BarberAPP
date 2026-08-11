@@ -102,7 +102,7 @@ function AdminClientsPage() {
                   {client.daysSinceLastVisit !== null
                     ? `Último corte: hace ${client.daysSinceLastVisit} días${
                         client.typicalGapDays !== null
-                          ? ` (· suele venir cada ~${client.typicalGapDays} días)`
+                          ? ` (suele venir cada ~${client.typicalGapDays} días)`
                           : ""
                       }`
                     : "Sin cortes registrados"}
