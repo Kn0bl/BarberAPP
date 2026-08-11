@@ -65,16 +65,21 @@ function AdminSettingsPage() {
         </Card>
 
         {SECTIONS.map((section) => (
-          <Card key={section.title}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <section.icon className="size-4 text-primary" aria-hidden />
-                {section.title}
-              </CardTitle>
-              <CardDescription>{section.description}</CardDescription>
-              <p className="pt-1 text-xs text-muted-foreground">Próximamente editable.</p>
-            </CardHeader>
-          </Card>
+          <Link key={section.title} to="/admin/perfil">
+            <Card className="transition-colors hover:border-primary/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <section.icon className="size-4 text-primary" aria-hidden />
+                  {section.title}
+                </CardTitle>
+                <CardDescription>{section.description}</CardDescription>
+                <p className="flex items-center justify-between pt-1 text-xs text-muted-foreground">
+                  <span>Editar en tu perfil</span>
+                  <ChevronRight className="size-4" aria-hidden />
+                </p>
+              </CardHeader>
+            </Card>
+          </Link>
         ))}
       </div>
     </>
