@@ -100,7 +100,10 @@ export function useCreateClientAppointment(barbershopId: string | null, dayKey: 
         ends_at: endsAt.toISOString(),
         status: "confirmed",
       });
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23P01") throw new Error(SLOT_TAKEN_MESSAGE);
+        throw error;
+      }
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: agendaKeys.day(barbershopId ?? "none", dayKey) }),

@@ -215,8 +215,8 @@ export function AgendaBoard({ barbershopId, dayKey, date }: AgendaBoardProps) {
                     });
                     toast.success("Turno creado");
                     closeSheet();
-                  } catch {
-                    toast.error("No pudimos crear el turno");
+                  } catch (error) {
+                    toast.error(error instanceof Error ? error.message : "No pudimos crear el turno");
                   }
                 }}
               />

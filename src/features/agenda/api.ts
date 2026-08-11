@@ -178,7 +178,10 @@ export function useCreateAppointment(barbershopId: string | null, dayKey: string
       ends_at: input.endsAt.toISOString(),
       status: "confirmed",
     });
-    if (error) throw error;
+    if (error) {
+      if (error.code === "23P01") throw new Error("Ese horario acaba de ocuparse, elegí otro");
+      throw error;
+    }
   });
 }
 
