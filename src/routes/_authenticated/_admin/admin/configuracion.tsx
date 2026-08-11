@@ -4,6 +4,7 @@ import { Building2, Clock, UserRound, type LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/common/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScheduleEditor } from "@/features/agenda/components/schedule-editor";
+import { BarbershopForm } from "@/features/barbershop/components/barbershop-form";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/configuracion")({
   head: () => ({
@@ -18,11 +19,6 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/configuracion
 });
 
 const SECTIONS: { icon: LucideIcon; title: string; description: string }[] = [
-  {
-    icon: Building2,
-    title: "Barbería",
-    description: "Nombre, dirección y datos de contacto que ven tus clientes.",
-  },
   {
     icon: UserRound,
     title: "Cuenta",
@@ -50,6 +46,21 @@ function AdminSettingsPage() {
           </CardHeader>
           <CardContent>
             <ScheduleEditor barbershopId={auth.barbershopId} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Building2 className="size-4 text-primary" aria-hidden />
+              Barbería
+            </CardTitle>
+            <CardDescription>
+              Nombre, dirección y datos de contacto que ven tus clientes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BarbershopForm barbershopId={auth.barbershopId} />
           </CardContent>
         </Card>
 
