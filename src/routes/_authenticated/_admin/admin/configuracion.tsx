@@ -4,6 +4,7 @@ import { Building2, Clock, UserRound, type LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/common/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScheduleEditor } from "@/features/agenda/components/schedule-editor";
+import { BarbershopForm } from "@/features/barbershop/components/barbershop-form";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/configuracion")({
   head: () => ({
@@ -18,11 +19,6 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/configuracion
 });
 
 const SECTIONS: { icon: LucideIcon; title: string; description: string }[] = [
-  {
-    icon: Building2,
-    title: "Barbería",
-    description: "Nombre, dirección y datos de contacto que ven tus clientes.",
-  },
   {
     icon: UserRound,
     title: "Cuenta",
