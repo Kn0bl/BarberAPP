@@ -15,7 +15,7 @@ export function BottomNav({ items }: { items: NavItem[] }) {
   return (
     <nav
       aria-label="Navegación principal"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+      className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 rounded-full border border-border/60 bg-card/80 shadow-raised backdrop-blur-xl md:hidden"
     >
       <ul className="grid" style={{ gridTemplateColumns: `repeat(${visible.length}, minmax(0, 1fr))` }}>
         {visible.map((item) => {
@@ -33,7 +33,7 @@ export function BottomNav({ items }: { items: NavItem[] }) {
                   <span
                     className={cn(
                       "flex size-12 items-center justify-center rounded-full border border-border shadow-md transition-colors",
-                      active ? "bg-primary text-primary-foreground" : "bg-background text-foreground",
+                      active ? "bg-primary text-primary-foreground" : "bg-card text-foreground",
                     )}
                   >
                     <item.icon className="size-6" aria-hidden />
