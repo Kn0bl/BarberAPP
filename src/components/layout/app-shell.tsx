@@ -23,9 +23,9 @@ interface AppShellProps {
 export function AppShell({ auth, items, homeHref, profileHref, children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-background md:flex">
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-32 -right-24 size-96 rounded-full bg-primary/25 blur-[120px]" />
-        <div className="absolute bottom-0 -left-24 size-96 rounded-full bg-chart-4/20 blur-[120px]" />
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-background" style={{ backgroundImage: "linear-gradient(color-mix(in oklch, var(--color-foreground) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklch, var(--color-foreground) 6%, transparent) 1px, transparent 1px)", backgroundSize: "32px 32px" }}>
+        <div className="absolute -top-32 -right-24 size-96 rounded-full bg-primary/35 blur-[100px]" />
+        <div className="absolute bottom-0 -left-24 size-96 rounded-full bg-chart-4/30 blur-[100px]" />
       </div>
 
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-sidebar-border/60 bg-sidebar/90 px-4 py-6 backdrop-blur-xl md:flex">
